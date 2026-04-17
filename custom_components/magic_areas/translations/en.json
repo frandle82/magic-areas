@@ -69,25 +69,41 @@
           "overhead_lights": "Overhead lights",
           "overhead_lights_states": "States which overhead lights are turned on",
           "overhead_lights_act_on": "When should overhead lights be controlled?",
+          "overhead_lights_blocking_states": "Blocking states for overhead lights",
+          "overhead_lights_turn_off_when_bright": "Turn overhead lights off when area is bright",
           "sleep_lights": "Sleep lights",
           "sleep_lights_states": "States which sleep lights are turned on",
           "sleep_lights_act_on": "When should sleep lights be controlled?",
+          "sleep_lights_blocking_states": "Blocking states for sleep lights",
+          "sleep_lights_turn_off_when_bright": "Turn sleep lights off when area is bright",
           "accent_lights": "Accent lights",
           "accent_lights_states": "States which accent lights are turned on",
           "accent_lights_act_on": "When should accent lights be controlled?",
+          "accent_lights_blocking_states": "Blocking states for accent lights",
+          "accent_lights_turn_off_when_bright": "Turn accent lights off when area is bright",
           "task_lights": "Task lights",
           "task_lights_states": "States which task lights are turned on",
-          "task_lights_act_on": "When should task lights be controlled?"
+          "task_lights_act_on": "When should task lights be controlled?",
+          "task_lights_blocking_states": "Blocking states for task lights",
+          "task_lights_turn_off_when_bright": "Turn task lights off when area is bright"
         },
         "data_description": {
           "overhead_lights_states": "Configure which area states will trigger this light group. Light groups will be turned `on` while area is on this state and `off` if the area loses these states. For example, if you want the light to stay `on` after an extended period of time, you need to select the `extended` state too.",
           "overhead_lights_act_on": "Select if this light group should be controlled only when an area first gets occupied, only on area state changes or both.",
+          "overhead_lights_blocking_states": "When any selected blocker is active (`sleep`, `extended`, `accented`, `dark`, or `bright`), this light group will not turn on and will be turned off if already on.",
+          "overhead_lights_turn_off_when_bright": "If enabled, this light group is actively turned off when the area enters `bright`.",
           "sleep_lights_states": "Configure which area states will trigger this light group. Light groups will be turned `on` while area is on this state and `off` if the area loses these states. For example, if you want the light to stay `on` after an extended period of time, you need to select the `extended` state too.",
           "sleep_lights_act_on": "Select if this light group should be controlled only when an area first gets occupied, only on area state changes or both.",
+          "sleep_lights_blocking_states": "When any selected blocker is active (`sleep`, `extended`, `accented`, `dark`, or `bright`), this light group will not turn on and will be turned off if already on.",
+          "sleep_lights_turn_off_when_bright": "If enabled, this light group is actively turned off when the area enters `bright`.",
           "accent_lights_states": "Configure which area states will trigger this light group. Light groups will be turned `on` while area is on this state and `off` if the area loses these states. For example, if you want the light to stay `on` after an extended period of time, you need to select the `extended` state too.",
           "accent_lights_act_on": "Select if this light group should be controlled only when an area first gets occupied, only on area state changes or both.",
+          "accent_lights_blocking_states": "When any selected blocker is active (`sleep`, `extended`, `accented`, `dark`, or `bright`), this light group will not turn on and will be turned off if already on.",
+          "accent_lights_turn_off_when_bright": "If enabled, this light group is actively turned off when the area enters `bright`.",
           "task_lights_states": "Configure which area states will trigger this light group. Light groups will be turned `on` while area is on this state and `off` if the area loses these states. For example, if you want the light to stay `on` after an extended period of time, you need to select the `extended` state too.",
-          "task_lights_act_on": "Select if this light group should be controlled only when an area first gets occupied, only on area state changes or both."
+          "task_lights_act_on": "Select if this light group should be controlled only when an area first gets occupied, only on area state changes or both.",
+          "task_lights_blocking_states": "When any selected blocker is active (`sleep`, `extended`, `accented`, `dark`, or `bright`), this light group will not turn on and will be turned off if already on.",
+          "task_lights_turn_off_when_bright": "If enabled, this light group is actively turned off when the area enters `bright`."
         }
       },
       "feature_conf_presence_hold": {
