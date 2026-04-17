@@ -933,7 +933,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
         """Configure the light groups feature."""
 
         available_states = BUILTIN_AREA_STATES.copy()
-        secondary_states_config = self.area_options.get(CONF_SECONDARY_STATES, {})
+        secondary_states_config = self.area_options.get(CONF_SECONDARY_STATES)
+        if not isinstance(secondary_states_config, dict):
+            secondary_states_config = {}
 
         light_group_state_exempt = [AREA_STATE_DARK]
         for extra_state, extra_state_entity in CONFIGURABLE_AREA_STATE_MAP.items():
