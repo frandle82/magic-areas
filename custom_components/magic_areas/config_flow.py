@@ -56,6 +56,8 @@ from .const import (
     CONF_ACCENT_ENTITY,
     CONF_ACCENT_LIGHTS,
     CONF_ACCENT_LIGHTS_ACT_ON,
+    CONF_ACCENT_LIGHTS_BLOCKING_STATES,
+    CONF_ACCENT_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_ACCENT_LIGHTS_STATES,
     CONF_AGGREGATES_BINARY_SENSOR_DEVICE_CLASSES,
     CONF_AGGREGATES_ILLUMINANCE_THRESHOLD,
@@ -98,6 +100,8 @@ from .const import (
     CONF_NOTIFY_STATES,
     CONF_OVERHEAD_LIGHTS,
     CONF_OVERHEAD_LIGHTS_ACT_ON,
+    CONF_OVERHEAD_LIGHTS_BLOCKING_STATES,
+    CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_OVERHEAD_LIGHTS_STATES,
     CONF_PRESENCE_DEVICE_PLATFORMS,
     CONF_PRESENCE_HOLD_TIMEOUT,
@@ -108,10 +112,14 @@ from .const import (
     CONF_SLEEP_ENTITY,
     CONF_SLEEP_LIGHTS,
     CONF_SLEEP_LIGHTS_ACT_ON,
+    CONF_SLEEP_LIGHTS_BLOCKING_STATES,
+    CONF_SLEEP_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_SLEEP_LIGHTS_STATES,
     CONF_SLEEP_TIMEOUT,
     CONF_TASK_LIGHTS,
     CONF_TASK_LIGHTS_ACT_ON,
+    CONF_TASK_LIGHTS_BLOCKING_STATES,
+    CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_TASK_LIGHTS_STATES,
     CONF_TYPE,
     CONF_WASP_IN_A_BOX_DELAY,
@@ -127,6 +135,7 @@ from .const import (
     EMPTY_STRING,
     FAN_GROUPS_ALLOWED_TRACKED_DEVICE_CLASS,
     LIGHT_GROUP_ACT_ON_OPTIONS,
+    LIGHT_GROUP_BLOCKING_STATE_OPTIONS,
     MAGICAREAS_UNIQUEID_PREFIX,
     META_AREA_BASIC_OPTIONS_SCHEMA,
     META_AREA_GLOBAL,
@@ -955,15 +964,31 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                 CONF_OVERHEAD_LIGHTS_ACT_ON: cv.multi_select(
                     LIGHT_GROUP_ACT_ON_OPTIONS
                 ),
+                CONF_OVERHEAD_LIGHTS_BLOCKING_STATES: cv.multi_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS
+                ),
+                CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT: cv.boolean,
                 CONF_SLEEP_LIGHTS: cv.multi_select(self.all_lights),
                 CONF_SLEEP_LIGHTS_STATES: cv.multi_select(available_states),
                 CONF_SLEEP_LIGHTS_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_SLEEP_LIGHTS_BLOCKING_STATES: cv.multi_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS
+                ),
+                CONF_SLEEP_LIGHTS_TURN_OFF_WHEN_BRIGHT: cv.boolean,
                 CONF_ACCENT_LIGHTS: cv.multi_select(self.all_lights),
                 CONF_ACCENT_LIGHTS_STATES: cv.multi_select(available_states),
                 CONF_ACCENT_LIGHTS_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_ACCENT_LIGHTS_BLOCKING_STATES: cv.multi_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS
+                ),
+                CONF_ACCENT_LIGHTS_TURN_OFF_WHEN_BRIGHT: cv.boolean,
                 CONF_TASK_LIGHTS: cv.multi_select(self.all_lights),
                 CONF_TASK_LIGHTS_STATES: cv.multi_select(available_states),
                 CONF_TASK_LIGHTS_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_TASK_LIGHTS_BLOCKING_STATES: cv.multi_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS
+                ),
+                CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT: cv.boolean,
             },
             selectors={
                 CONF_OVERHEAD_LIGHTS: self._build_selector_entity_simple(
@@ -979,6 +1004,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                     multiple=True,
                     translation_key=SelectorTranslationKeys.CONTROL_ON,
                 ),
+                CONF_OVERHEAD_LIGHTS_BLOCKING_STATES: self._build_selector_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS,
+                    multiple=True,
+                ),
+                CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT: self._build_selector_boolean(),
                 CONF_SLEEP_LIGHTS: self._build_selector_entity_simple(
                     self.all_lights, multiple=True
                 ),
@@ -992,6 +1022,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                     multiple=True,
                     translation_key=SelectorTranslationKeys.CONTROL_ON,
                 ),
+                CONF_SLEEP_LIGHTS_BLOCKING_STATES: self._build_selector_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS,
+                    multiple=True,
+                ),
+                CONF_SLEEP_LIGHTS_TURN_OFF_WHEN_BRIGHT: self._build_selector_boolean(),
                 CONF_ACCENT_LIGHTS: self._build_selector_entity_simple(
                     self.all_lights, multiple=True
                 ),
@@ -1005,6 +1040,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                     multiple=True,
                     translation_key=SelectorTranslationKeys.CONTROL_ON,
                 ),
+                CONF_ACCENT_LIGHTS_BLOCKING_STATES: self._build_selector_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS,
+                    multiple=True,
+                ),
+                CONF_ACCENT_LIGHTS_TURN_OFF_WHEN_BRIGHT: self._build_selector_boolean(),
                 CONF_TASK_LIGHTS: self._build_selector_entity_simple(
                     self.all_lights, multiple=True
                 ),
@@ -1018,6 +1058,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                     multiple=True,
                     translation_key=SelectorTranslationKeys.CONTROL_ON,
                 ),
+                CONF_TASK_LIGHTS_BLOCKING_STATES: self._build_selector_select(
+                    LIGHT_GROUP_BLOCKING_STATE_OPTIONS,
+                    multiple=True,
+                ),
+                CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT: self._build_selector_boolean(),
             },
             user_input=user_input,
         )
