@@ -1,5 +1,6 @@
 """Config Flow for Magic Area."""
 
+import importlib.util
 import logging
 from typing import Any
 
@@ -22,7 +23,6 @@ from homeassistant.core import callback
 from homeassistant.helpers.area_registry import async_get as areareg_async_get
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_registry import async_get as entityreg_async_get
-from homeassistant.helpers.floor_registry import async_get as floorreg_async_get
 from homeassistant.helpers.selector import (
     BooleanSelector,
     BooleanSelectorConfig,
@@ -172,6 +172,9 @@ from custom_components.magic_areas.helpers.area import (
 _LOGGER = logging.getLogger(__name__)
 
 EMPTY_ENTRY = [""]
+HAS_FLOOR_REGISTRY = (
+    importlib.util.find_spec("homeassistant.helpers.floor_registry") is not None
+)
 
 
 class ConfigBase:
@@ -313,14 +316,20 @@ class ConfigFlow(config_entries.ConfigFlow, ConfigBase, domain=DOMAIN):
 
         # Load registries
         area_registry = areareg_async_get(self.hass)
-        floor_registry = floorreg_async_get(self.hass)
         areas = [
             basic_area_from_object(area) for area in area_registry.async_list_areas()
         ]
         area_ids = [area.id for area in areas]
 
-        # Load floors meta-aras
-        floors = floor_registry.async_list_floors()
+        # Load floors meta-areas (if supported by the running HA version)
+        floors = []
+        if HAS_FLOOR_REGISTRY:
+            from homeassistant.helpers.floor_registry import (
+                async_get as floorreg_async_get,
+            )
+
+            floor_registry = floorreg_async_get(self.hass)
+            floors = floor_registry.async_list_floors()
 
         for floor in floors:
             # Prevent conflicts between meta areas and existing areas

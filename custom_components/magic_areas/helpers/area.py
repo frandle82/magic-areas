@@ -3,7 +3,9 @@
 Small helper functions for area and Magic Area objects.
 """
 
+import importlib.util
 import logging
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ID, ATTR_NAME
@@ -11,10 +13,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.area_registry import (
     AreaEntry,
     async_get as areareg_async_get,
-)
-from homeassistant.helpers.floor_registry import (
-    FloorEntry,
-    async_get as floorreg_async_get,
 )
 
 from custom_components.magic_areas.base.magic import BasicArea, MagicArea, MagicMetaArea
@@ -26,6 +24,9 @@ from custom_components.magic_areas.const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+HAS_FLOOR_REGISTRY = (
+    importlib.util.find_spec("homeassistant.helpers.floor_registry") is not None
+)
 
 
 def basic_area_from_meta(area_id: str, name: str | None = None) -> BasicArea:
@@ -61,7 +62,7 @@ def basic_area_from_object(area: AreaEntry) -> BasicArea:
     return basic_area
 
 
-def basic_area_from_floor(floor: FloorEntry) -> BasicArea:
+def basic_area_from_floor(floor: Any) -> BasicArea:
     """Create a BasicArea from an AreaEntry object."""
 
     basic_area = BasicArea()
@@ -91,9 +92,16 @@ def get_magic_area_for_config_entry(
 
     _LOGGER.debug("%s: Setting up entry.", area_name)
 
-    # Load floors
-    floor_registry = floorreg_async_get(hass)
-    floors = floor_registry.async_list_floors()
+    # Load floors (if supported by the running HA version)
+    floors = []
+    floor_registry = None
+    if HAS_FLOOR_REGISTRY:
+        from homeassistant.helpers.floor_registry import (
+            async_get as floorreg_async_get,
+        )
+
+        floor_registry = floorreg_async_get(hass)
+        floors = floor_registry.async_list_floors()
 
     non_floor_meta_ids = [
         meta_area_type
@@ -106,9 +114,9 @@ def get_magic_area_for_config_entry(
         # Non-floor Meta-Area (Global/Interior/Exterior)
         meta_area = basic_area_from_meta(area_id)
         magic_area = MagicMetaArea(hass, meta_area, config_entry)
-    elif area_id in floor_ids:
+    elif area_id in floor_ids and floor_registry is not None:
         # Floor Meta-Area
-        floor_entry: FloorEntry | None = floor_registry.async_get_floor(area_id)
+        floor_entry = floor_registry.async_get_floor(area_id)
         assert floor_entry is not None
         meta_area = basic_area_from_floor(floor_entry)
         magic_area = MagicMetaArea(hass, meta_area, config_entry)
