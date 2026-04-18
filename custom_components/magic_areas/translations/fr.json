@@ -32,7 +32,9 @@
                     "presence_hold": "Créer un interrupteur de maintien de présence",
                     "ble_trackers": "Surveiller les capteurs de suivi Bluetooth",
                     "fan_groups": "Créer groupes ventilateurs",
-                    "climate_control": "Créer contrôleur climat"
+                    "climate_control": "Créer contrôleur climat",
+                    "switch_groups": "Créer des groupes d'interrupteurs",
+                    "wasp_in_a_box": "Créer Wasp in a Box"
                 }
             },
             "show_menu": {
@@ -52,7 +54,9 @@
                     "feature_conf_presence_hold": "Configurer l'interrupteur de maintien de présence",
                     "feature_conf_ble_trackers": "Configurer la surveillance du tracker BLE",
                     "feature_conf_fan_groups": "Configurer groupes ventilateurs",
-                    "feature_conf_climate_control": "Configurer contrôle climat"
+                    "feature_conf_climate_control": "Configurer contrôle climat",
+                    "feature_conf_switch_groups": "Configurer les groupes d'interrupteurs",
+                    "feature_conf_wasp_in_a_box": "Configurer Wasp in a Box"
                 }
             },
             "feature_conf_health": {
@@ -68,26 +72,56 @@
                 "data": {
                     "overhead_lights": "Lumières du plafond",
                     "overhead_lights_states": "États pour lesquels les lumières du plafond sont allumées",
+                    "overhead_lights_blocking_states": "États qui bloquent les lumières du plafond",
                     "overhead_lights_act_on": "Quand les lumières du plafond doivent-elles être contrôlées ?",
+                    "overhead_lights_turn_off_when_bright": "Éteindre les lumières du plafond quand la zone est lumineuse",
                     "sleep_lights": "Lumières de sommeil",
                     "sleep_lights_states": "États pour lesquels les lumières de sommeil sont allumées",
+                    "sleep_lights_blocking_states": "États qui bloquent les lumières de sommeil",
                     "sleep_lights_act_on": "Quand les lumières de sommeil doivent-elles être contrôlées ?",
+                    "sleep_lights_turn_off_when_bright": "Éteindre les lumières de sommeil quand la zone est lumineuse",
                     "accent_lights": "Lumières d'accentuation",
                     "accent_lights_states": "États pour lesquels les lumières d'accentuation sont allumées",
+                    "accent_lights_blocking_states": "États qui bloquent les lumières d'accentuation",
                     "accent_lights_act_on": "Quand les lumières d'accentuation doivent-elles être contrôlées ?",
+                    "accent_lights_turn_off_when_bright": "Éteindre les lumières d'accentuation quand la zone est lumineuse",
                     "task_lights": "Lumières de tâche",
                     "task_lights_states": "États pour lesquels les lumières de tâche sont allumées",
-                    "task_lights_act_on": "Quand les lumières de tâche doivent-elles être contrôlées ?"
+                    "task_lights_blocking_states": "États qui bloquent les lumières de tâche",
+                    "task_lights_act_on": "Quand les lumières de tâche doivent-elles être contrôlées ?",
+                    "task_lights_turn_off_when_bright": "Éteindre les lumières de tâche quand la zone est lumineuse"
                 },
                 "data_description": {
                     "overhead_lights_states": "Configurez les états de pièce qui déclencheront ce groupe de lumières. Les groupes de lumières seront allumés lorsque la pièce est dans cet état et éteints si la pièce perd ces états. Par exemple, si vous souhaitez que la lumière reste allumée après une période prolongée, vous devez également sélectionner l'état `extended`.",
                     "overhead_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux.",
+                    "overhead_lights_blocking_states": "Lorsque la zone est dans l'un de ces états, ce groupe de lumières ne s'allume pas.",
+                    "overhead_lights_turn_off_when_bright": "Si activé, les lumières s'éteignent lorsque la zone passe à l'état `bright`.",
                     "sleep_lights_states": "Configurez les états de pièce qui déclencheront ce groupe de lumières. Les groupes de lumières seront allumés lorsque la pièce est dans cet état et éteints si la pièce perd ces états. Par exemple, si vous souhaitez que la lumière reste allumée après une période prolongée, vous devez également sélectionner l'état `extended`.",
                     "sleep_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux.",
+                    "sleep_lights_blocking_states": "Lorsque la zone est dans l'un de ces états, ce groupe de lumières ne s'allume pas.",
+                    "sleep_lights_turn_off_when_bright": "Si activé, les lumières s'éteignent lorsque la zone passe à l'état `bright`.",
                     "accent_lights_states": "Configurez les états de pièce qui déclencheront ce groupe de lumières. Les groupes de lumières seront allumés lorsque la pièce est dans cet état et éteints si la pièce perd ces états. Par exemple, si vous souhaitez que la lumière reste allumée après une période prolongée, vous devez également sélectionner l'état `extended`.",
                     "accent_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux.",
+                    "accent_lights_blocking_states": "Lorsque la zone est dans l'un de ces états, ce groupe de lumières ne s'allume pas.",
+                    "accent_lights_turn_off_when_bright": "Si activé, les lumières s'éteignent lorsque la zone passe à l'état `bright`.",
                     "task_lights_states": "Configurez les états de pièce qui déclencheront ce groupe de lumières. Les groupes de lumières seront allumés lorsque la pièce est dans cet état et éteints si la pièce perd ces états. Par exemple, si vous souhaitez que la lumière reste allumée après une période prolongée, vous devez également sélectionner l'état `extended`.",
-                    "task_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux."
+                    "task_lights_blocking_states": "Lorsque la zone est dans l'un de ces états, ce groupe de lumières ne s'allume pas.",
+                    "task_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux.",
+                    "task_lights_turn_off_when_bright": "Si activé, les lumières s'éteignent lorsque la zone passe à l'état `bright`."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Groupes d'interrupteurs",
+                "description": "Crée des groupes d'interrupteurs gérés par zone pour les scénarios de sommeil et de tâches. Chaque groupe peut définir si l'action d'état allume ou éteint les interrupteurs.",
+                "data": {
+                    "sleep_switches": "Interrupteurs sommeil",
+                    "sleep_switches_states": "États dans lesquels les interrupteurs sommeil sont allumés",
+                    "sleep_switches_act_on": "Quand contrôler les interrupteurs sommeil ?",
+                    "sleep_switches_action": "Action pour les interrupteurs sommeil",
+                    "task_switches": "Interrupteurs tâche",
+                    "task_switches_states": "États dans lesquels les interrupteurs tâche sont allumés",
+                    "task_switches_act_on": "Quand contrôler les interrupteurs tâche ?",
+                    "task_switches_action": "Action pour les interrupteurs tâche"
                 }
             },
             "feature_conf_presence_hold": {
