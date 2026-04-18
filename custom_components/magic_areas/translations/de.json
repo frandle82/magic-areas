@@ -70,26 +70,56 @@
                 "data": {
                     "overhead_lights": "Deckenleuchten",
                     "overhead_lights_states": "In welchen Zuständen sollen Deckenleuchten eingeschaltet werden",
+                    "overhead_lights_blocking_states": "In welchen Zuständen sollen Deckenleuchten blockiert werden",
                     "overhead_lights_act_on": "Wann sollen die Deckenleuchten gesteuert werden?",
+                    "overhead_lights_turn_off_when_bright": "Deckenleuchten bei Helligkeit ausschalten",
                     "sleep_lights": "Schlaflichter",
                     "sleep_lights_states": "In welchen Zuständen sollen Schlaflichter eingeschaltet werden",
+                    "sleep_lights_blocking_states": "In welchen Zuständen sollen Schlaflichter blockiert werden",
                     "sleep_lights_act_on": "Wann sollen Schlaflichter gesteuert werden?",
+                    "sleep_lights_turn_off_when_bright": "Schlaflichter bei Helligkeit ausschalten",
                     "accent_lights": "Akzentlichter",
                     "accent_lights_states": "In welchen Zuständen sollen Akzentlichter eingeschaltet werden",
+                    "accent_lights_blocking_states": "In welchen Zuständen sollen Akzentlichter blockiert werden",
                     "accent_lights_act_on": "Wann sollen die Akzentlichter gesteuert werden?",
+                    "accent_lights_turn_off_when_bright": "Akzentlichter bei Helligkeit ausschalten",
                     "task_lights": "Arbeitslichter",
                     "task_lights_states": "In welchen Zuständen sollen Arbeitslichter eingeschaltet werden",
-                    "task_lights_act_on": "Wann sollen die Arbeitslichter gesteuert werden?"
+                    "task_lights_blocking_states": "In welchen Zuständen sollen Arbeitslichter blockiert werden",
+                    "task_lights_act_on": "Wann sollen die Arbeitslichter gesteuert werden?",
+                    "task_lights_turn_off_when_bright": "Arbeitslichter bei Helligkeit ausschalten"
                 },
                 "data_description": {
                     "overhead_lights_states": "Konfigurieren Sie, welche Bereichszustände diese Lichtgruppe auslösen. Lichtgruppen werden eingeschaltet, während sich der Bereich in diesem Zustand befindet, und ausgeschaltet, wenn der Bereich diese Zustände verliert. Wenn das Licht nach einer längeren Zeitspanne eingeschaltet bleiben soll, muss auch der Zustand `erweitert` ausgewählt werden.",
                     "overhead_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden.",
+                    "overhead_lights_blocking_states": "Wenn der Bereich in einem dieser Zustände ist, wird diese Lichtgruppe nicht eingeschaltet.",
+                    "overhead_lights_turn_off_when_bright": "Bei aktiver Option werden die Lichter ausgeschaltet, sobald der Bereich `hell` wird.",
                     "sleep_lights_states": "Konfigurieren Sie, welche Bereichszustände diese Lichtgruppe auslösen. Lichtgruppen werden eingeschaltet, während sich der Bereich in diesem Zustand befindet, und ausgeschaltet, wenn der Bereich diese Zustände verliert. Wenn das Licht nach einer längeren Zeitspanne eingeschaltet bleiben soll, muss auch der Zustand `erweitert` ausgewählt werden.",
                     "sleep_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden.",
+                    "sleep_lights_blocking_states": "Wenn der Bereich in einem dieser Zustände ist, wird diese Lichtgruppe nicht eingeschaltet.",
+                    "sleep_lights_turn_off_when_bright": "Bei aktiver Option werden die Lichter ausgeschaltet, sobald der Bereich `hell` wird.",
                     "accent_lights_states": "Konfigurieren Sie, welche Bereichszustände diese Lichtgruppe auslösen. Lichtgruppen werden eingeschaltet, während sich der Bereich in diesem Zustand befindet, und ausgeschaltet, wenn der Bereich diese Zustände verliert. Wenn das Licht nach einer längeren Zeitspanne eingeschaltet bleiben soll, muss auch der Zustand `erweitert` ausgewählt werden.",
                     "accent_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden.",
+                    "accent_lights_blocking_states": "Wenn der Bereich in einem dieser Zustände ist, wird diese Lichtgruppe nicht eingeschaltet.",
+                    "accent_lights_turn_off_when_bright": "Bei aktiver Option werden die Lichter ausgeschaltet, sobald der Bereich `hell` wird.",
                     "task_lights_states": "Konfigurieren Sie, welche Bereichszustände diese Lichtgruppe auslösen. Lichtgruppen werden eingeschaltet, während sich der Bereich in diesem Zustand befindet, und ausgeschaltet, wenn der Bereich diese Zustände verliert. Wenn das Licht nach einer längeren Zeitspanne eingeschaltet bleiben soll, muss auch der Zustand `erweitert` ausgewählt werden.",
-                    "task_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden."
+                    "task_lights_blocking_states": "Wenn der Bereich in einem dieser Zustände ist, wird diese Lichtgruppe nicht eingeschaltet.",
+                    "task_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden.",
+                    "task_lights_turn_off_when_bright": "Bei aktiver Option werden die Lichter ausgeschaltet, sobald der Bereich `hell` wird."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Schaltergruppen",
+                "description": "Erstellt bereichsverwaltete Schaltergruppen für Schlaf-/Aufgaben-Szenarien. Jede Gruppe kann festlegen, ob die Zustandsaktion Schalter ein- oder ausschaltet.",
+                "data": {
+                    "sleep_switches": "Schlaf-Schalter",
+                    "sleep_switches_states": "Zustände, in denen Schlaf-Schalter eingeschaltet sind",
+                    "sleep_switches_act_on": "Wann sollen Schlaf-Schalter gesteuert werden?",
+                    "sleep_switches_action": "Aktion für Schlaf-Schalter",
+                    "task_switches": "Aufgaben-Schalter",
+                    "task_switches_states": "Zustände, in denen Aufgaben-Schalter eingeschaltet sind",
+                    "task_switches_act_on": "Wann sollen Aufgaben-Schalter gesteuert werden?",
+                    "task_switches_action": "Aktion für Aufgaben-Schalter"
                 }
             },
             "feature_conf_switch_groups": {

@@ -72,26 +72,56 @@
                 "data": {
                     "overhead_lights": "Bovenlichten",
                     "overhead_lights_states": "Geeft aan welke bovenlichten zijn ingeschakeld",
+                    "overhead_lights_blocking_states": "Statussen die bovenlichten blokkeren",
                     "overhead_lights_act_on": "Wanneer moet bovenverlichting worden aangestuurd?",
+                    "overhead_lights_turn_off_when_bright": "Bovenlichten uitschakelen als het helder is",
                     "sleep_lights": "Slaap lichten",
                     "sleep_lights_states": "Geeft aan welke slaaplichten zijn ingeschakeld",
+                    "sleep_lights_blocking_states": "Statussen die slaaplichten blokkeren",
                     "sleep_lights_act_on": "Wanneer moeten slaaplichten worden aangestuurd?",
+                    "sleep_lights_turn_off_when_bright": "Slaaplichten uitschakelen als het helder is",
                     "accent_lights": "Accentverlichting",
                     "accent_lights_states": "Geeft aan welke accentverlichting is ingeschakeld",
+                    "accent_lights_blocking_states": "Statussen die accentverlichting blokkeren",
                     "accent_lights_act_on": "Wanneer moet accentverlichting worden aangestuurd?",
+                    "accent_lights_turn_off_when_bright": "Accentverlichting uitschakelen als het helder is",
                     "task_lights": "Taaklampjes",
                     "task_lights_states": "Geeft aan welke taaklampjes zijn ingeschakeld",
-                    "task_lights_act_on": "Wanneer moeten taaklampen worden aangestuurd?"
+                    "task_lights_blocking_states": "Statussen die taaklampen blokkeren",
+                    "task_lights_act_on": "Wanneer moeten taaklampen worden aangestuurd?",
+                    "task_lights_turn_off_when_bright": "Taaklampen uitschakelen als het helder is"
                 },
                 "data_description": {
                     "overhead_lights_states": "Configureer welke gebiedsstatussen deze lichtgroep activeren. Lichtgroepen worden 'aan' gezet als het gebied zich in deze toestand bevindt en 'uit' als het gebied deze toestanden verliest. Als u bijvoorbeeld wilt dat het licht na een langere periode 'aan' blijft, moet u ook de 'uitgebreide' status selecteren.",
                     "overhead_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide.",
+                    "overhead_lights_blocking_states": "Als het gebied in één van deze statussen is, wordt deze lichtgroep niet ingeschakeld.",
+                    "overhead_lights_turn_off_when_bright": "Indien actief worden de lichten uitgeschakeld zodra het gebied `bright` wordt.",
                     "sleep_lights_states": "Configureer welke gebiedsstatussen deze lichtgroep activeren. Lichtgroepen worden 'aan' gezet als het gebied zich in deze toestand bevindt en 'uit' als het gebied deze toestanden verliest. Als u bijvoorbeeld wilt dat het licht na een langere periode 'aan' blijft, moet u ook de 'uitgebreide' status selecteren.",
                     "sleep_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide.",
+                    "sleep_lights_blocking_states": "Als het gebied in één van deze statussen is, wordt deze lichtgroep niet ingeschakeld.",
+                    "sleep_lights_turn_off_when_bright": "Indien actief worden de lichten uitgeschakeld zodra het gebied `bright` wordt.",
                     "accent_lights_states": "Configureer welke gebiedsstatussen deze lichtgroep activeren. Lichtgroepen worden 'aan' gezet als het gebied zich in deze toestand bevindt en 'uit' als het gebied deze toestanden verliest. Als u bijvoorbeeld wilt dat het licht na een langere periode 'aan' blijft, moet u ook de 'uitgebreide' status selecteren.",
                     "accent_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide.",
+                    "accent_lights_blocking_states": "Als het gebied in één van deze statussen is, wordt deze lichtgroep niet ingeschakeld.",
+                    "accent_lights_turn_off_when_bright": "Indien actief worden de lichten uitgeschakeld zodra het gebied `bright` wordt.",
                     "task_lights_states": "Configureer welke gebiedsstatussen deze lichtgroep activeren. Lichtgroepen worden 'aan' gezet als het gebied zich in deze toestand bevindt en 'uit' als het gebied deze toestanden verliest. Als u bijvoorbeeld wilt dat het licht na een langere periode 'aan' blijft, moet u ook de 'uitgebreide' status selecteren.",
-                    "task_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide."
+                    "task_lights_blocking_states": "Als het gebied in één van deze statussen is, wordt deze lichtgroep niet ingeschakeld.",
+                    "task_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide.",
+                    "task_lights_turn_off_when_bright": "Indien actief worden de lichten uitgeschakeld zodra het gebied `bright` wordt."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Schakelaar-groepen",
+                "description": "Maakt gebiedsbeheerde schakelaar-groepen voor slaap- en taakscenario's. Elke groep kan bepalen of de statusactie schakelaars aan of uit zet.",
+                "data": {
+                    "sleep_switches": "Slaapschakelaars",
+                    "sleep_switches_states": "Statussen waarin slaapschakelaars aan staan",
+                    "sleep_switches_act_on": "Wanneer moeten slaapschakelaars worden aangestuurd?",
+                    "sleep_switches_action": "Actie voor slaapschakelaars",
+                    "task_switches": "Taakschakelaars",
+                    "task_switches_states": "Statussen waarin taakschakelaars aan staan",
+                    "task_switches_act_on": "Wanneer moeten taakschakelaars worden aangestuurd?",
+                    "task_switches_action": "Actie voor taakschakelaars"
                 }
             },
             "feature_conf_switch_groups": {

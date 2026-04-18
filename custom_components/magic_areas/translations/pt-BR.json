@@ -72,26 +72,56 @@
                 "data": {
                     "overhead_lights": "Luzes suspensas",
                     "overhead_lights_states": "Indica quais luzes do teto estão acesas",
+                    "overhead_lights_blocking_states": "Estados que bloqueiam as luzes suspensas",
                     "overhead_lights_act_on": "Quando as luzes do teto devem ser controladas?",
+                    "overhead_lights_turn_off_when_bright": "Desligar luzes suspensas quando estiver claro",
                     "sleep_lights": "Luzes de dormir",
                     "sleep_lights_states": "Indica quais luzes de suspensão estão acesas",
+                    "sleep_lights_blocking_states": "Estados que bloqueiam as luzes de dormir",
                     "sleep_lights_act_on": "Quando as luzes de dormir devem ser controladas?",
+                    "sleep_lights_turn_off_when_bright": "Desligar luzes de dormir quando estiver claro",
                     "accent_lights": "Luzes de destaque",
                     "accent_lights_states": "Indica quais luzes de destaque estão acesas",
+                    "accent_lights_blocking_states": "Estados que bloqueiam as luzes de destaque",
                     "accent_lights_act_on": "Quando as luzes de destaque devem ser controladas?",
+                    "accent_lights_turn_off_when_bright": "Desligar luzes de destaque quando estiver claro",
                     "task_lights": "Luzes de tarefa",
                     "task_lights_states": "Indica quais luzes de tarefas estão acesas",
-                    "task_lights_act_on": "Quando as luzes de tarefa devem ser controladas?"
+                    "task_lights_blocking_states": "Estados que bloqueiam as luzes de tarefa",
+                    "task_lights_act_on": "Quando as luzes de tarefa devem ser controladas?",
+                    "task_lights_turn_off_when_bright": "Desligar luzes de tarefa quando estiver claro"
                 },
                 "data_description": {
                     "overhead_lights_states": "Configure quais estados de área irão acionar este grupo de luzes. Os grupos de luz serão ativados enquanto a área estiver neste estado e desativados se a área perder esses estados. Por exemplo, se você deseja que a luz permaneça “acesa” após um longo período de tempo, você também precisa selecionar o estado “estendido”.",
                     "overhead_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos.",
+                    "overhead_lights_blocking_states": "Quando a área estiver em um destes estados, este grupo de luz não será ligado.",
+                    "overhead_lights_turn_off_when_bright": "Se ativado, as luzes serão desligadas quando a área ficar em estado `bright`.",
                     "sleep_lights_states": "Configure quais estados de área irão acionar este grupo de luzes. Os grupos de luz serão ativados enquanto a área estiver neste estado e desativados se a área perder esses estados. Por exemplo, se você deseja que a luz permaneça “acesa” após um longo período de tempo, você também precisa selecionar o estado “estendido”.",
                     "sleep_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos.",
+                    "sleep_lights_blocking_states": "Quando a área estiver em um destes estados, este grupo de luz não será ligado.",
+                    "sleep_lights_turn_off_when_bright": "Se ativado, as luzes serão desligadas quando a área ficar em estado `bright`.",
                     "accent_lights_states": "Configure quais estados de área irão acionar este grupo de luzes. Os grupos de luz serão ativados enquanto a área estiver neste estado e desativados se a área perder esses estados. Por exemplo, se você deseja que a luz permaneça “acesa” após um longo período de tempo, você também precisa selecionar o estado “estendido”.",
                     "accent_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos.",
+                    "accent_lights_blocking_states": "Quando a área estiver em um destes estados, este grupo de luz não será ligado.",
+                    "accent_lights_turn_off_when_bright": "Se ativado, as luzes serão desligadas quando a área ficar em estado `bright`.",
                     "task_lights_states": "Configure quais estados de área irão acionar este grupo de luzes. Os grupos de luz serão ativados enquanto a área estiver neste estado e desativados se a área perder esses estados. Por exemplo, se você deseja que a luz permaneça “acesa” após um longo período de tempo, você também precisa selecionar o estado “estendido”.",
-                    "task_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos."
+                    "task_lights_blocking_states": "Quando a área estiver em um destes estados, este grupo de luz não será ligado.",
+                    "task_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos.",
+                    "task_lights_turn_off_when_bright": "Se ativado, as luzes serão desligadas quando a área ficar em estado `bright`."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Grupos de interruptores",
+                "description": "Cria grupos de interruptores gerenciados por área para cenários de sono e tarefa. Cada grupo pode definir se a ação de estado liga ou desliga os interruptores.",
+                "data": {
+                    "sleep_switches": "Interruptores de sono",
+                    "sleep_switches_states": "Estados em que os interruptores de sono ficam ligados",
+                    "sleep_switches_act_on": "Quando os interruptores de sono devem ser controlados?",
+                    "sleep_switches_action": "Ação para interruptores de sono",
+                    "task_switches": "Interruptores de tarefa",
+                    "task_switches_states": "Estados em que os interruptores de tarefa ficam ligados",
+                    "task_switches_act_on": "Quando os interruptores de tarefa devem ser controlados?",
+                    "task_switches_action": "Ação para interruptores de tarefa"
                 }
             },
             "feature_conf_switch_groups": {

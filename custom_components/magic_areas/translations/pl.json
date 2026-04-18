@@ -70,26 +70,56 @@
         "data": {
           "overhead_lights": "Oświetlenie górne",
           "overhead_lights_states": "Wskaż, które oświetlenie górne jest załączone",
+          "overhead_lights_blocking_states": "Stany blokujące dla oświetlenia górnego",
           "overhead_lights_act_on": "Kiedy sterować oświetleniem górnym?",
+          "overhead_lights_turn_off_when_bright": "Wyłączaj oświetlenie górne, gdy jest jasno",
           "sleep_lights": "Lampy nocne",
           "sleep_lights_states": "Wskaż, które lampy nocne są załączone",
+          "sleep_lights_blocking_states": "Stany blokujące dla lamp nocnych",
           "sleep_lights_act_on": "Kiedy sterować lampami nocnymi?",
+          "sleep_lights_turn_off_when_bright": "Wyłączaj lampy nocne, gdy jest jasno",
           "accent_lights": "Oświetlenie akcentujące",
           "accent_lights_states": "Wskaż, które oświetlenie akcentujące jest załączone",
+          "accent_lights_blocking_states": "Stany blokujące dla oświetlenia akcentującego",
           "accent_lights_act_on": "Kiedy sterować oświetleniem akcentującym?",
+          "accent_lights_turn_off_when_bright": "Wyłączaj oświetlenie akcentujące, gdy jest jasno",
           "task_lights": "Oświetlenie robocze",
           "task_lights_states": "Wskaż, które oświetlenie robocze jest załączone",
-          "task_lights_act_on": "Kiedy sterować oświetleniem roboczym?"
+          "task_lights_blocking_states": "Stany blokujące dla oświetlenia roboczego",
+          "task_lights_act_on": "Kiedy sterować oświetleniem roboczym?",
+          "task_lights_turn_off_when_bright": "Wyłączaj oświetlenie robocze, gdy jest jasno"
         },
         "data_description": {
           "overhead_lights_states": "Skonfiguruj stan obszaru, bedący wyzwalaczem dla tej grupy oświetlenia. Grupy oświetlenia będą załączane, gdy obszar znajdzie się we wskazanym stanie, a wyłączane, gdy obszar znajdzie się w innym stanie, niż skonfigurowany tutaj. Np. jeśli chcesz, aby oświetlenie pozostało załączone po dłuższym czasie, wskaż także wartość przedłużenia czasu.",
           "overhead_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach.",
+          "overhead_lights_blocking_states": "Gdy obszar jest w jednym z tych stanów, ta grupa oświetlenia nie zostanie włączona.",
+          "overhead_lights_turn_off_when_bright": "Jeśli opcja jest aktywna, światła wyłączą się, gdy obszar przejdzie do stanu `bright`.",
           "sleep_lights_states": "Skonfiguruj stan obszaru, bedący wyzwalaczem dla tej grupy oświetlenia. Grupy oświetlenia będą załączane, gdy obszar znajdzie się we wskazanym stanie, a wyłączane, gdy obszar znajdzie się w innym stanie, niż skonfigurowany tutaj. Np. jeśli chcesz, aby oświetlenie pozostało załączone po dłuższym czasie, wskaż także wartość przedłużenia czasu.",
           "sleep_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach.",
+          "sleep_lights_blocking_states": "Gdy obszar jest w jednym z tych stanów, ta grupa oświetlenia nie zostanie włączona.",
+          "sleep_lights_turn_off_when_bright": "Jeśli opcja jest aktywna, światła wyłączą się, gdy obszar przejdzie do stanu `bright`.",
           "accent_lights_states": "Skonfiguruj stan obszaru, bedący wyzwalaczem dla tej grupy oświetlenia. Grupy oświetlenia będą załączane, gdy obszar znajdzie się we wskazanym stanie, a wyłączane, gdy obszar znajdzie się w innym stanie, niż skonfigurowany tutaj. Np. jeśli chcesz, aby oświetlenie pozostało załączone po dłuższym czasie, wskaż także wartość przedłużenia czasu.",
           "accent_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach.",
+          "accent_lights_blocking_states": "Gdy obszar jest w jednym z tych stanów, ta grupa oświetlenia nie zostanie włączona.",
+          "accent_lights_turn_off_when_bright": "Jeśli opcja jest aktywna, światła wyłączą się, gdy obszar przejdzie do stanu `bright`.",
           "task_lights_states": "Skonfiguruj stan obszaru, bedący wyzwalaczem dla tej grupy oświetlenia. Grupy oświetlenia będą załączane, gdy obszar znajdzie się we wskazanym stanie, a wyłączane, gdy obszar znajdzie się w innym stanie, niż skonfigurowany tutaj. Np. jeśli chcesz, aby oświetlenie pozostało załączone po dłuższym czasie, wskaż także wartość przedłużenia czasu.",
-          "task_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach."
+          "task_lights_blocking_states": "Gdy obszar jest w jednym z tych stanów, ta grupa oświetlenia nie zostanie włączona.",
+          "task_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach.",
+          "task_lights_turn_off_when_bright": "Jeśli opcja jest aktywna, światła wyłączą się, gdy obszar przejdzie do stanu `bright`."
+        }
+      },
+      "feature_conf_switch_groups": {
+        "title": "Grupy przełączników",
+        "description": "Tworzy grupy przełączników zarządzane przez obszar dla scenariuszy snu i zadań. Każda grupa może określić, czy akcja stanu ma włączać czy wyłączać przełączniki.",
+        "data": {
+          "sleep_switches": "Przełączniki snu",
+          "sleep_switches_states": "Stany, w których przełączniki snu są włączone",
+          "sleep_switches_act_on": "Kiedy sterować przełącznikami snu?",
+          "sleep_switches_action": "Akcja dla przełączników snu",
+          "task_switches": "Przełączniki zadań",
+          "task_switches_states": "Stany, w których przełączniki zadań są włączone",
+          "task_switches_act_on": "Kiedy sterować przełącznikami zadań?",
+          "task_switches_action": "Akcja dla przełączników zadań"
         }
       },
       "feature_conf_switch_groups": {
