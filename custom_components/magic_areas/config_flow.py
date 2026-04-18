@@ -591,8 +591,25 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
             self.resolve_groups(eligible_light_tracking_entities)
         )
 
+        raw_area_options = dict(self.config_entry.options)
         area_schema = META_AREA_SCHEMA if self.area.is_meta() else REGULAR_AREA_SCHEMA
-        self.area_options = area_schema(dict(self.config_entry.options))
+        self.area_options = area_schema(raw_area_options)
+
+        # Keep feature options that may not yet be present in the static area schema.
+        # This prevents unknown/forward-compatible keys from being dropped when
+        # reopening the options flow.
+        raw_enabled_features = raw_area_options.get(CONF_ENABLED_FEATURES, {})
+        if isinstance(raw_enabled_features, dict):
+            if CONF_ENABLED_FEATURES not in self.area_options:
+                self.area_options[CONF_ENABLED_FEATURES] = {}
+            for feature_name, feature_config in raw_enabled_features.items():
+                if not isinstance(feature_config, dict):
+                    continue
+                if feature_name not in self.area_options[CONF_ENABLED_FEATURES]:
+                    self.area_options[CONF_ENABLED_FEATURES][feature_name] = {}
+                self.area_options[CONF_ENABLED_FEATURES][feature_name].update(
+                    feature_config
+                )
 
         _LOGGER.debug(
             "%s: Loaded area options: %s", self.area.name, str(self.area_options)
