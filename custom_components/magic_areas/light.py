@@ -367,16 +367,6 @@ class AreaLightGroup(MagicLightGroup):
             self.controlled = True
             return self._turn_off(force=True)
 
-        # Preserve legacy behavior by default: react to bright transition only.
-        if self.area.has_state(AreaStates.BRIGHT):
-            if (
-                AreaStates.BRIGHT in new_states
-                and AreaStates.OCCUPIED not in new_states
-            ):
-                self.controlled = True
-                self._turn_off()
-            return False
-
         # Only react to actual secondary state changes
         if not new_states and not lost_states:
             self.logger.debug("%s: No new or lost states, noop.", self.name)

@@ -119,6 +119,29 @@ def mock_config_entry_light_groups_advanced() -> MockConfigEntry:
     )
 
 
+@pytest.fixture(name="light_groups_bright_config_entry")
+def mock_config_entry_light_groups_bright() -> MockConfigEntry:
+    """Fixture for mock configuration entry with a dark sensor but no bright turn-off."""
+    data = get_basic_config_entry_data(DEFAULT_MOCK_AREA)
+    options = {
+        CONF_SECONDARY_STATES: {
+            CONF_DARK_ENTITY: "binary_sensor.light_level_sensor",
+        },
+        CONF_ENABLED_FEATURES: {
+            CONF_FEATURE_LIGHT_GROUPS: {
+                CONF_OVERHEAD_LIGHTS: ["light.mock_light_1"],
+                CONF_OVERHEAD_LIGHTS_ACT_ON: LIGHT_GROUP_ACT_ON_OPTIONS,
+                CONF_OVERHEAD_LIGHTS_STATES: [AreaStates.OCCUPIED],
+            },
+        },
+    }
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data=data,
+        options=options,
+    )
+
+
 @pytest.fixture(name="_setup_integration_light_groups")
 async def setup_integration_light_groups(
     hass: HomeAssistant,
@@ -152,6 +175,18 @@ async def setup_integration_light_groups_advanced(
     await init_integration(hass, [light_groups_advanced_config_entry])
     yield
     await shutdown_integration(hass, [light_groups_advanced_config_entry])
+
+
+@pytest.fixture(name="_setup_integration_light_groups_bright")
+async def setup_integration_light_groups_bright(
+    hass: HomeAssistant,
+    light_groups_bright_config_entry: MockConfigEntry,
+) -> AsyncGenerator[Any]:
+    """Set up integration with bright transitions and default light behavior."""
+
+    await init_integration(hass, [light_groups_bright_config_entry])
+    yield
+    await shutdown_integration(hass, [light_groups_bright_config_entry])
 
 
 # Entities
@@ -389,6 +424,48 @@ async def test_light_group_turns_off_when_bright(
 
     light_group_state = hass.states.get(light_group_entity_id)
     assert_state(light_group_state, STATE_OFF)
+
+
+async def test_light_group_stays_on_when_bright_if_not_configured(
+    hass: HomeAssistant,
+    entities_light_one: list[MockLight],
+    entities_binary_sensor_motion_one: list[MockBinarySensor],
+    entities_light_secondary_states: list[MockBinarySensor],
+    _setup_integration_light_groups_bright,
+) -> None:
+    """Test bright transitions do not turn off lights unless configured."""
+    light_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_overhead_lights"
+    )
+    light_control_entity_id = (
+        f"{SWITCH_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_light_control"
+    )
+
+    motion_sensor_entity_id = entities_binary_sensor_motion_one[0].entity_id
+    light_level_entity_id = entities_light_secondary_states[1].entity_id
+
+    hass.states.async_set(light_control_entity_id, STATE_ON)
+    await hass.services.async_call(
+        SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: light_control_entity_id}
+    )
+    await hass.async_block_till_done()
+
+    # Ensure occupied and dark first.
+    hass.states.async_set(light_level_entity_id, STATE_OFF)
+    hass.states.async_set(motion_sensor_entity_id, STATE_ON)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_ON)
+
+    # Bright transition should not turn off without turn_off_when_bright enabled.
+    hass.states.async_set(light_level_entity_id, STATE_ON)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_ON)
 
 
 async def test_light_group_all_contains_valid_child_ids_for_multiple_groups(
