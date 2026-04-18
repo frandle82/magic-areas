@@ -188,6 +188,7 @@ class MagicSwitchGroup(MagicEntity, SwitchGroup):
             entity_ids=entities,
             name=EMPTY_STRING,
             unique_id=self.unique_id,
+            mode=False,
         )
         delattr(self, "_attr_name")
 
