@@ -69,7 +69,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             )
         )
     else:
-        light_group_ids = []
+        child_light_groups: list[AreaLightGroup] = []
 
         # Create extended light groups
         for category in LIGHT_GROUP_CATEGORIES:
@@ -90,22 +90,19 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 )
                 light_group_object = AreaLightGroup(area, category_lights, category)
                 light_groups.append(light_group_object)
-
-                # Infer light group entity id from name
-                light_group_id = f"{LIGHT_DOMAIN}.magic_areas_light_groups_{area.slug}_lights_{category.lower()}"
-                light_group_ids.append(light_group_id)
+                child_light_groups.append(light_group_object)
 
         _LOGGER.debug(
             "%s: Creating Area light group for area with lights: %s",
             area.name,
-            str(light_group_ids),
+            str([group.unique_id for group in child_light_groups]),
         )
         light_groups.append(
             AreaLightGroup(
                 area,
                 light_entities,
                 category=LightGroupCategory.ALL,
-                child_ids=light_group_ids,
+                child_groups=child_light_groups,
             )
         )
 
@@ -181,12 +178,12 @@ class MagicLightGroup(MagicEntity, LightGroup):
 class AreaLightGroup(MagicLightGroup):
     """Magic Light Group."""
 
-    def __init__(self, area, entities, category=None, child_ids=None):
+    def __init__(self, area, entities, category=None, child_groups=None):
         """Initialize light group."""
 
         MagicLightGroup.__init__(self, area, entities, translation_key=category)
 
-        self._child_ids = child_ids
+        self._child_groups = child_groups or []
 
         self.category = category
         self.assigned_states = []
@@ -228,7 +225,7 @@ class AreaLightGroup(MagicLightGroup):
         self._attr_extra_state_attributes["controlling"] = self.controlling
 
         if self.category == LightGroupCategory.ALL:
-            self._attr_extra_state_attributes["child_ids"] = self._child_ids
+            self._attr_extra_state_attributes["child_ids"] = []
 
         self.logger.debug(
             "%s: Light group (%s) created with entities: %s",
@@ -266,6 +263,14 @@ class AreaLightGroup(MagicLightGroup):
         await self._setup_listeners()
 
         await super().async_added_to_hass()
+
+        if self.category == LightGroupCategory.ALL:
+            self._attr_extra_state_attributes["child_ids"] = [
+                child_group.entity_id
+                for child_group in self._child_groups
+                if child_group.entity_id
+            ]
+            self.schedule_update_ha_state()
 
     async def _setup_listeners(self, _=None) -> None:
         """Set up listeners for area state chagne."""
@@ -552,29 +557,14 @@ class AreaLightGroup(MagicLightGroup):
         self.schedule_update_ha_state()
         self.logger.debug("{self.name}: Control Reset.")
 
-    def is_child_controllable(self, entity_id):
-        """Check if child entity is controllable."""
-        entity_object = self.hass.states.get(entity_id)
-        if not entity_object:
-            return False
-        if "controlling" in entity_object.attributes:
-            return entity_object.attributes["controlling"]
-
-        return False
-
     def handle_group_state_change_primary(self):
         """Handle group state change for primary area state events."""
-        controlling = False
-
-        if not self._child_ids:
+        if not self._child_groups:
             return
 
-        for entity_id in self._child_ids:
-            if self.is_child_controllable(entity_id):
-                controlling = True
-                break
-
-        self.controlling = controlling
+        self.controlling = any(
+            child_group.controlling for child_group in self._child_groups
+        )
         self.schedule_update_ha_state()
 
     def handle_group_state_change_secondary(self):

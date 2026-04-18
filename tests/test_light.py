@@ -18,6 +18,9 @@ from homeassistant.const import ATTR_ENTITY_ID, SERVICE_TURN_ON, STATE_OFF, STAT
 from homeassistant.core import HomeAssistant
 
 from custom_components.magic_areas.const import (
+    CONF_ACCENT_LIGHTS,
+    CONF_ACCENT_LIGHTS_ACT_ON,
+    CONF_ACCENT_LIGHTS_STATES,
     CONF_DARK_ENTITY,
     CONF_ENABLED_FEATURES,
     CONF_FEATURE_LIGHT_GROUPS,
@@ -69,6 +72,27 @@ def mock_config_entry_light_groups() -> MockConfigEntry:
     return MockConfigEntry(domain=DOMAIN, data=data)
 
 
+@pytest.fixture(name="light_groups_multi_config_entry")
+def mock_config_entry_light_groups_multiple() -> MockConfigEntry:
+    """Fixture for mock configuration entry with multiple light groups."""
+    data = get_basic_config_entry_data(DEFAULT_MOCK_AREA)
+    data.update(
+        {
+            CONF_ENABLED_FEATURES: {
+                CONF_FEATURE_LIGHT_GROUPS: {
+                    CONF_OVERHEAD_LIGHTS: ["light.mock_light_1"],
+                    CONF_OVERHEAD_LIGHTS_ACT_ON: [LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE],
+                    CONF_OVERHEAD_LIGHTS_STATES: [AreaStates.OCCUPIED],
+                    CONF_ACCENT_LIGHTS: ["light.mock_light_2"],
+                    CONF_ACCENT_LIGHTS_ACT_ON: [LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE],
+                    CONF_ACCENT_LIGHTS_STATES: [AreaStates.OCCUPIED],
+                },
+            }
+        }
+    )
+    return MockConfigEntry(domain=DOMAIN, data=data)
+
+
 @pytest.fixture(name="light_groups_advanced_config_entry")
 def mock_config_entry_light_groups_advanced() -> MockConfigEntry:
     """Fixture for mock configuration entry with blocking and bright-off options."""
@@ -107,6 +131,17 @@ async def setup_integration_light_groups(
     await shutdown_integration(hass, [light_groups_config_entry])
 
 
+@pytest.fixture(name="_setup_integration_light_groups_multiple")
+async def setup_integration_light_groups_multiple(
+    hass: HomeAssistant,
+    light_groups_multi_config_entry: MockConfigEntry,
+) -> AsyncGenerator[Any]:
+    """Set up integration with multiple light groups config."""
+    await init_integration(hass, [light_groups_multi_config_entry])
+    yield
+    await shutdown_integration(hass, [light_groups_multi_config_entry])
+
+
 @pytest.fixture(name="_setup_integration_light_groups_advanced")
 async def setup_integration_light_groups_advanced(
     hass: HomeAssistant,
@@ -133,6 +168,29 @@ async def setup_entities_light_one(
             state="off",
             unique_id="unique_light",
         )
+    ]
+    await setup_mock_entities(
+        hass, LIGHT_DOMAIN, {DEFAULT_MOCK_AREA: mock_light_entities}
+    )
+    return mock_light_entities
+
+
+@pytest.fixture(name="entities_light_two")
+async def setup_entities_light_two(
+    hass: HomeAssistant,
+) -> list[MockLight]:
+    """Create two mock lights and setup the system with them."""
+    mock_light_entities = [
+        MockLight(
+            name="mock_light_1",
+            state="off",
+            unique_id="unique_light_1",
+        ),
+        MockLight(
+            name="mock_light_2",
+            state="off",
+            unique_id="unique_light_2",
+        ),
     ]
     await setup_mock_entities(
         hass, LIGHT_DOMAIN, {DEFAULT_MOCK_AREA: mock_light_entities}
@@ -331,3 +389,29 @@ async def test_light_group_turns_off_when_bright(
 
     light_group_state = hass.states.get(light_group_entity_id)
     assert_state(light_group_state, STATE_OFF)
+
+
+async def test_light_group_all_contains_valid_child_ids_for_multiple_groups(
+    hass: HomeAssistant,
+    entities_light_two: list[MockLight],
+    _setup_integration_light_groups_multiple,
+) -> None:
+    """Test all_lights group exposes valid child IDs when multiple groups exist."""
+    del entities_light_two
+
+    all_lights_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_all_lights"
+    )
+    overhead_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_overhead_lights"
+    )
+    accent_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_accent_lights"
+    )
+
+    all_lights_group_state = hass.states.get(all_lights_group_entity_id)
+    assert all_lights_group_state is not None
+
+    child_ids = all_lights_group_state.attributes["child_ids"]
+    assert overhead_group_entity_id in child_ids
+    assert accent_group_entity_id in child_ids

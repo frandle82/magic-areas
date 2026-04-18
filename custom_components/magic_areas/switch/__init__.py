@@ -139,7 +139,7 @@ def _build_switch_groups(area: MagicArea) -> list["AreaSwitchGroup"]:
 
     available_switches = [e["entity_id"] for e in area.entities[SWITCH_DOMAIN]]
     switch_groups: list[AreaSwitchGroup] = []
-    child_ids: list[str] = []
+    child_groups: list[AreaSwitchGroup] = []
 
     for category in SWITCH_GROUP_CATEGORIES:
         category_switches = [
@@ -154,9 +154,7 @@ def _build_switch_groups(area: MagicArea) -> list["AreaSwitchGroup"]:
 
         switch_group = AreaSwitchGroup(area, category_switches, category)
         switch_groups.append(switch_group)
-        child_ids.append(
-            f"{SWITCH_DOMAIN}.magic_areas_switch_groups_{area.slug}_{category.lower()}"
-        )
+        child_groups.append(switch_group)
 
     if available_switches:
         switch_groups.append(
@@ -164,7 +162,7 @@ def _build_switch_groups(area: MagicArea) -> list["AreaSwitchGroup"]:
                 area,
                 available_switches,
                 category=SwitchGroupCategory.ALL,
-                child_ids=child_ids,
+                child_groups=child_groups,
             )
         )
 
@@ -187,7 +185,7 @@ class MagicSwitchGroup(MagicEntity, SwitchGroup):
         )
         SwitchGroup.__init__(
             self,
-            entities=entities,
+            entity_ids=entities,
             name=EMPTY_STRING,
             unique_id=self.unique_id,
         )
@@ -197,14 +195,14 @@ class MagicSwitchGroup(MagicEntity, SwitchGroup):
 class AreaSwitchGroup(MagicSwitchGroup):
     """Magic Area switch group with optional area-state automation."""
 
-    def __init__(self, area, entities, category=None, child_ids=None):
+    def __init__(self, area, entities, category=None, child_groups=None):
         """Initialize switch group."""
         translation_key = (
             "switch_group" if category == SwitchGroupCategory.ALL else category
         )
         MagicSwitchGroup.__init__(self, area, entities, translation_key=translation_key)
 
-        self._child_ids = child_ids
+        self._child_groups = child_groups or []
         self.category = category
         self.assigned_states = []
         self.act_on = []
@@ -231,7 +229,7 @@ class AreaSwitchGroup(MagicSwitchGroup):
         self._attr_extra_state_attributes["action"] = self.action
 
         if self.category == SwitchGroupCategory.ALL:
-            self._attr_extra_state_attributes["child_ids"] = self._child_ids
+            self._attr_extra_state_attributes["child_ids"] = []
 
     @property
     def icon(self):
@@ -247,6 +245,14 @@ class AreaSwitchGroup(MagicSwitchGroup):
 
         await self._setup_listeners()
         await super().async_added_to_hass()
+
+        if self.category == SwitchGroupCategory.ALL:
+            self._attr_extra_state_attributes["child_ids"] = [
+                child_group.entity_id
+                for child_group in self._child_groups
+                if child_group.entity_id
+            ]
+            self.schedule_update_ha_state()
 
     async def _setup_listeners(self, _=None) -> None:
         """Set up listeners for area and entity state changes."""
@@ -350,13 +356,6 @@ class AreaSwitchGroup(MagicSwitchGroup):
         self._attr_extra_state_attributes["controlling"] = self.controlling
         self.schedule_update_ha_state()
 
-    def is_child_controllable(self, entity_id):
-        """Check if child group is controllable."""
-        entity_object = self.hass.states.get(entity_id)
-        if not entity_object:
-            return False
-        return entity_object.attributes.get("controlling", False)
-
     def group_state_changed(self, _):
         """Handle manual intervention."""
         if not self.area.is_occupied():
@@ -365,8 +364,7 @@ class AreaSwitchGroup(MagicSwitchGroup):
 
         if self.category == SwitchGroupCategory.ALL:
             self.controlling = any(
-                self.is_child_controllable(entity_id)
-                for entity_id in (self._child_ids or [])
+                child_group.controlling for child_group in self._child_groups
             )
             self.schedule_update_ha_state()
             return
