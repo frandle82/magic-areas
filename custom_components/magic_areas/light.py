@@ -91,8 +91,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 light_group_object = AreaLightGroup(area, category_lights, category)
                 light_groups.append(light_group_object)
 
-                # Infer light group entity id from name
-                light_group_id = f"{LIGHT_DOMAIN}.magic_areas_light_groups_{area.slug}_lights_{category.lower()}"
+                # Infer light group entity id from translated object id pattern.
+                # Example: light.magic_areas_light_groups_<area>_overhead_lights
+                light_group_id = (
+                    f"{LIGHT_DOMAIN}.magic_areas_light_groups_{area.slug}_{category.lower()}"
+                )
                 light_group_ids.append(light_group_id)
 
         _LOGGER.debug(
