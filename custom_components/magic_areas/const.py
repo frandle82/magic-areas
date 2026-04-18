@@ -77,6 +77,24 @@ CONF_ACCENT_LIGHTS_TURN_OFF_WHEN_BRIGHT = "accent_lights_turn_off_when_bright"
 CONF_TASK_LIGHTS_BLOCKING_STATES = "task_lights_blocking_states"
 CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT = "task_lights_turn_off_when_bright"
 
+# Switch group options
+CONF_OVERHEAD_SWITCHES = "overhead_switches"
+CONF_OVERHEAD_SWITCHES_STATES = "overhead_switches_states"
+CONF_OVERHEAD_SWITCHES_ACT_ON = "overhead_switches_act_on"
+CONF_OVERHEAD_SWITCHES_TURN_OFF = "overhead_switches_turn_off"
+CONF_SLEEP_SWITCHES = "sleep_switches"
+CONF_SLEEP_SWITCHES_STATES = "sleep_switches_states"
+CONF_SLEEP_SWITCHES_ACT_ON = "sleep_switches_act_on"
+CONF_SLEEP_SWITCHES_TURN_OFF = "sleep_switches_turn_off"
+CONF_ACCENT_SWITCHES = "accent_switches"
+CONF_ACCENT_SWITCHES_STATES = "accent_switches_states"
+CONF_ACCENT_SWITCHES_ACT_ON = "accent_switches_act_on"
+CONF_ACCENT_SWITCHES_TURN_OFF = "accent_switches_turn_off"
+CONF_TASK_SWITCHES = "task_switches"
+CONF_TASK_SWITCHES_STATES = "task_switches_states"
+CONF_TASK_SWITCHES_ACT_ON = "task_switches_act_on"
+CONF_TASK_SWITCHES_TURN_OFF = "task_switches_turn_off"
+
 LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE = "occupancy"
 LIGHT_GROUP_ACT_ON_STATE_CHANGE = "state"
 DEFAULT_LIGHT_GROUP_ACT_ON = [
@@ -149,6 +167,54 @@ LIGHT_GROUP_CATEGORIES = [
     CONF_SLEEP_LIGHTS,
     CONF_ACCENT_LIGHTS,
     CONF_TASK_LIGHTS,
+]
+
+SWITCH_GROUP_DEFAULT_ICON = "mdi:toggle-switch-variant"
+
+SWITCH_GROUP_ICONS = {
+    CONF_OVERHEAD_SWITCHES: "mdi:power-plug",
+    CONF_SLEEP_SWITCHES: "mdi:sleep",
+    CONF_ACCENT_SWITCHES: "mdi:television",
+    CONF_TASK_SWITCHES: "mdi:remote-tv",
+}
+
+SWITCH_GROUP_STATES = {
+    CONF_OVERHEAD_SWITCHES: CONF_OVERHEAD_SWITCHES_STATES,
+    CONF_SLEEP_SWITCHES: CONF_SLEEP_SWITCHES_STATES,
+    CONF_ACCENT_SWITCHES: CONF_ACCENT_SWITCHES_STATES,
+    CONF_TASK_SWITCHES: CONF_TASK_SWITCHES_STATES,
+}
+
+SWITCH_GROUP_ACT_ON = {
+    CONF_OVERHEAD_SWITCHES: CONF_OVERHEAD_SWITCHES_ACT_ON,
+    CONF_SLEEP_SWITCHES: CONF_SLEEP_SWITCHES_ACT_ON,
+    CONF_ACCENT_SWITCHES: CONF_ACCENT_SWITCHES_ACT_ON,
+    CONF_TASK_SWITCHES: CONF_TASK_SWITCHES_ACT_ON,
+}
+
+SWITCH_GROUP_TURN_OFF = {
+    CONF_OVERHEAD_SWITCHES: CONF_OVERHEAD_SWITCHES_TURN_OFF,
+    CONF_SLEEP_SWITCHES: CONF_SLEEP_SWITCHES_TURN_OFF,
+    CONF_ACCENT_SWITCHES: CONF_ACCENT_SWITCHES_TURN_OFF,
+    CONF_TASK_SWITCHES: CONF_TASK_SWITCHES_TURN_OFF,
+}
+
+
+class SwitchGroupCategory(StrEnum):
+    """Categories of switch groups."""
+
+    ALL = "all_switches"
+    OVERHEAD = "overhead_switches"
+    TASK = "task_switches"
+    ACCENT = "accent_switches"
+    SLEEP = "sleep_switches"
+
+
+SWITCH_GROUP_CATEGORIES = [
+    CONF_OVERHEAD_SWITCHES,
+    CONF_SLEEP_SWITCHES,
+    CONF_ACCENT_SWITCHES,
+    CONF_TASK_SWITCHES,
 ]
 
 AGGREGATE_BINARY_SENSOR_CLASSES = [
@@ -293,6 +359,15 @@ class MagicAreasFeatureInfoLightGroups(MagicAreasFeatureInfo):
     icons = {SWITCH_DOMAIN: "mdi:lightbulb-auto-outline"}
 
 
+class MagicAreasFeatureInfoSwitchGroups(MagicAreasFeatureInfo):
+    """Feature information for feature: Switch groups."""
+
+    id = "switch_groups"
+    translation_keys = {
+        SWITCH_DOMAIN: None,
+    }
+
+
 class MagicAreasFeatureInfoClimateControl(MagicAreasFeatureInfo):
     """Feature information for feature: Climate control."""
 
@@ -345,6 +420,7 @@ class MagicAreasFeatures(StrEnum):
     AREA = "area"  # Default feature
     PRESENCE_HOLD = "presence_hold"
     LIGHT_GROUPS = "light_groups"
+    SWITCH_GROUPS = "switch_groups"
     CLIMATE_CONTROL = "climate_control"
     COVER_GROUPS = "cover_groups"
     MEDIA_PLAYER_GROUPS = "media_player_groups"
@@ -691,6 +767,7 @@ CONF_FEATURE_CLIMATE_CONTROL = "climate_control"
 CONF_FEATURE_FAN_GROUPS = "fan_groups"
 CONF_FEATURE_MEDIA_PLAYER_GROUPS = "media_player_groups"
 CONF_FEATURE_LIGHT_GROUPS = "light_groups"
+CONF_FEATURE_SWITCH_GROUPS = "switch_groups"
 CONF_FEATURE_COVER_GROUPS = "cover_groups"
 CONF_FEATURE_AREA_AWARE_MEDIA_PLAYER = "area_aware_media_player"
 CONF_FEATURE_AGGREGATION = "aggregates"
@@ -713,6 +790,7 @@ CONF_FEATURE_LIST = CONF_FEATURE_LIST_META + [
     CONF_FEATURE_PRESENCE_HOLD,
     CONF_FEATURE_BLE_TRACKERS,
     CONF_FEATURE_FAN_GROUPS,
+    CONF_FEATURE_SWITCH_GROUPS,
     CONF_FEATURE_WASP_IN_A_BOX,
 ]
 
@@ -957,6 +1035,38 @@ LIGHT_GROUP_FEATURE_SCHEMA = vol.Schema(
     extra=vol.REMOVE_EXTRA,
 )
 
+SWITCH_GROUP_FEATURE_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_OVERHEAD_SWITCHES, default=[]): cv.entity_ids,
+        vol.Optional(
+            CONF_OVERHEAD_SWITCHES_STATES, default=[AREA_STATE_OCCUPIED]
+        ): cv.ensure_list,
+        vol.Optional(
+            CONF_OVERHEAD_SWITCHES_ACT_ON, default=DEFAULT_LIGHT_GROUP_ACT_ON
+        ): cv.ensure_list,
+        vol.Optional(CONF_OVERHEAD_SWITCHES_TURN_OFF, default=True): cv.boolean,
+        vol.Optional(CONF_SLEEP_SWITCHES, default=[]): cv.entity_ids,
+        vol.Optional(CONF_SLEEP_SWITCHES_STATES, default=[]): cv.ensure_list,
+        vol.Optional(
+            CONF_SLEEP_SWITCHES_ACT_ON, default=DEFAULT_LIGHT_GROUP_ACT_ON
+        ): cv.ensure_list,
+        vol.Optional(CONF_SLEEP_SWITCHES_TURN_OFF, default=True): cv.boolean,
+        vol.Optional(CONF_ACCENT_SWITCHES, default=[]): cv.entity_ids,
+        vol.Optional(CONF_ACCENT_SWITCHES_STATES, default=[]): cv.ensure_list,
+        vol.Optional(
+            CONF_ACCENT_SWITCHES_ACT_ON, default=DEFAULT_LIGHT_GROUP_ACT_ON
+        ): cv.ensure_list,
+        vol.Optional(CONF_ACCENT_SWITCHES_TURN_OFF, default=True): cv.boolean,
+        vol.Optional(CONF_TASK_SWITCHES, default=[]): cv.entity_ids,
+        vol.Optional(CONF_TASK_SWITCHES_STATES, default=[]): cv.ensure_list,
+        vol.Optional(
+            CONF_TASK_SWITCHES_ACT_ON, default=DEFAULT_LIGHT_GROUP_ACT_ON
+        ): cv.ensure_list,
+        vol.Optional(CONF_TASK_SWITCHES_TURN_OFF, default=True): cv.boolean,
+    },
+    extra=vol.REMOVE_EXTRA,
+)
+
 AREA_AWARE_MEDIA_PLAYER_FEATURE_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NOTIFICATION_DEVICES, default=[]): cv.entity_ids,
@@ -969,6 +1079,7 @@ ALL_FEATURES = set(CONF_FEATURE_LIST) | set(CONF_FEATURE_LIST_GLOBAL)
 
 CONFIGURABLE_FEATURES = {
     CONF_FEATURE_LIGHT_GROUPS: LIGHT_GROUP_FEATURE_SCHEMA,
+    CONF_FEATURE_SWITCH_GROUPS: SWITCH_GROUP_FEATURE_SCHEMA,
     CONF_FEATURE_CLIMATE_CONTROL: CLIMATE_CONTROL_FEATURE_SCHEMA,
     CONF_FEATURE_FAN_GROUPS: FAN_GROUP_FEATURE_SCHEMA,
     CONF_FEATURE_AGGREGATION: AGGREGATE_FEATURE_SCHEMA,
@@ -1244,6 +1355,25 @@ OPTIONS_LIGHT_GROUP = [
         vol.All(cv.ensure_list, [vol.In(LIGHT_GROUP_BLOCKING_STATE_OPTIONS)]),
     ),
     (CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT, False, cv.boolean),
+]
+
+OPTIONS_SWITCH_GROUP = [
+    (CONF_OVERHEAD_SWITCHES, [], cv.entity_ids),
+    (CONF_OVERHEAD_SWITCHES_STATES, [AREA_STATE_OCCUPIED], cv.ensure_list),
+    (CONF_OVERHEAD_SWITCHES_ACT_ON, DEFAULT_LIGHT_GROUP_ACT_ON, cv.ensure_list),
+    (CONF_OVERHEAD_SWITCHES_TURN_OFF, True, cv.boolean),
+    (CONF_SLEEP_SWITCHES, [], cv.entity_ids),
+    (CONF_SLEEP_SWITCHES_STATES, [], cv.ensure_list),
+    (CONF_SLEEP_SWITCHES_ACT_ON, DEFAULT_LIGHT_GROUP_ACT_ON, cv.ensure_list),
+    (CONF_SLEEP_SWITCHES_TURN_OFF, True, cv.boolean),
+    (CONF_ACCENT_SWITCHES, [], cv.entity_ids),
+    (CONF_ACCENT_SWITCHES_STATES, [], cv.ensure_list),
+    (CONF_ACCENT_SWITCHES_ACT_ON, DEFAULT_LIGHT_GROUP_ACT_ON, cv.ensure_list),
+    (CONF_ACCENT_SWITCHES_TURN_OFF, True, cv.boolean),
+    (CONF_TASK_SWITCHES, [], cv.entity_ids),
+    (CONF_TASK_SWITCHES_STATES, [], cv.ensure_list),
+    (CONF_TASK_SWITCHES_ACT_ON, DEFAULT_LIGHT_GROUP_ACT_ON, cv.ensure_list),
+    (CONF_TASK_SWITCHES_TURN_OFF, True, cv.boolean),
 ]
 
 OPTIONS_AGGREGATES = [

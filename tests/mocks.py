@@ -31,6 +31,7 @@ from homeassistant.components.media_player import MediaPlayerEntity
 from homeassistant.components.media_player.const import MediaPlayerEntityFeature
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.sensor.const import SensorDeviceClass
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     STATE_CLOSED,
@@ -411,6 +412,10 @@ class MockLight(MockToggleEntity, LightEntity):
                 setattr(self, "brightness", value)
             if key in TURN_ON_ARG_TO_COLOR_MODE:
                 self._attr_color_mode = TURN_ON_ARG_TO_COLOR_MODE[key]
+
+
+class MockSwitch(MockToggleEntity, SwitchEntity):
+    """Mock switch class."""
 
 
 class MockBinarySensor(MockEntity, BinarySensorEntity):

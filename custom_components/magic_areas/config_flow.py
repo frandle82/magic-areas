@@ -18,6 +18,7 @@ from homeassistant.components.climate.const import (
 from homeassistant.components.light.const import DOMAIN as LIGHT_DOMAIN
 from homeassistant.components.media_player.const import DOMAIN as MEDIA_PLAYER_DOMAIN
 from homeassistant.components.sensor.const import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.switch.const import DOMAIN as SWITCH_DOMAIN
 from homeassistant.const import ATTR_DEVICE_CLASS, ATTR_ENTITY_ID, CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.area_registry import async_get as areareg_async_get
@@ -90,6 +91,7 @@ from .const import (
     CONF_FEATURE_LIST_GLOBAL,
     CONF_FEATURE_LIST_META,
     CONF_FEATURE_PRESENCE_HOLD,
+    CONF_FEATURE_SWITCH_GROUPS,
     CONF_FEATURE_WASP_IN_A_BOX,
     CONF_HEALTH_SENSOR_DEVICE_CLASSES,
     CONF_ID,
@@ -115,13 +117,29 @@ from .const import (
     CONF_SLEEP_LIGHTS_BLOCKING_STATES,
     CONF_SLEEP_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_SLEEP_LIGHTS_STATES,
+    CONF_SLEEP_SWITCHES,
+    CONF_SLEEP_SWITCHES_ACT_ON,
+    CONF_SLEEP_SWITCHES_STATES,
+    CONF_SLEEP_SWITCHES_TURN_OFF,
     CONF_SLEEP_TIMEOUT,
     CONF_TASK_LIGHTS,
     CONF_TASK_LIGHTS_ACT_ON,
     CONF_TASK_LIGHTS_BLOCKING_STATES,
     CONF_TASK_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_TASK_LIGHTS_STATES,
+    CONF_TASK_SWITCHES,
+    CONF_TASK_SWITCHES_ACT_ON,
+    CONF_TASK_SWITCHES_STATES,
+    CONF_TASK_SWITCHES_TURN_OFF,
     CONF_TYPE,
+    CONF_OVERHEAD_SWITCHES,
+    CONF_OVERHEAD_SWITCHES_ACT_ON,
+    CONF_OVERHEAD_SWITCHES_STATES,
+    CONF_OVERHEAD_SWITCHES_TURN_OFF,
+    CONF_ACCENT_SWITCHES,
+    CONF_ACCENT_SWITCHES_ACT_ON,
+    CONF_ACCENT_SWITCHES_STATES,
+    CONF_ACCENT_SWITCHES_TURN_OFF,
     CONF_WASP_IN_A_BOX_DELAY,
     CONF_WASP_IN_A_BOX_WASP_DEVICE_CLASSES,
     CONF_WASP_IN_A_BOX_WASP_TIMEOUT,
@@ -157,6 +175,7 @@ from .const import (
     OPTIONS_PRESENCE_HOLD,
     OPTIONS_PRESENCE_TRACKING,
     OPTIONS_PRESENCE_TRACKING_META,
+    OPTIONS_SWITCH_GROUP,
     OPTIONS_SECONDARY_STATES,
     OPTIONS_SECONDARY_STATES_META,
     OPTIONS_WASP_IN_A_BOX,
@@ -1088,6 +1107,114 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                 CONF_FAN_GROUPS_SETPOINT: self._build_selector_number(
                     unit_of_measurement=EMPTY_STRING, step=0.5
                 ),
+            },
+            user_input=user_input,
+        )
+
+    async def async_step_feature_conf_switch_groups(self, user_input=None):
+        """Configure the switch groups feature."""
+
+        available_states = BUILTIN_AREA_STATES.copy()
+        secondary_states_config = self.area_options.get(CONF_SECONDARY_STATES)
+        if not isinstance(secondary_states_config, dict):
+            secondary_states_config = {}
+
+        switch_states_exempt = [AREA_STATE_DARK]
+        for extra_state, extra_state_entity in CONFIGURABLE_AREA_STATE_MAP.items():
+            if extra_state in switch_states_exempt:
+                continue
+            if secondary_states_config.get(extra_state_entity, None):
+                available_states.append(extra_state)
+
+        all_switches = [
+            entity_id
+            for entity_id in self.all_entities
+            if (
+                entity_id.split(".")[0] == SWITCH_DOMAIN
+                and not entity_id.split(".")[1].startswith(MAGICAREAS_UNIQUEID_PREFIX)
+            )
+        ]
+
+        return await self.do_feature_config(
+            name=CONF_FEATURE_SWITCH_GROUPS,
+            options=OPTIONS_SWITCH_GROUP,
+            dynamic_validators={
+                CONF_OVERHEAD_SWITCHES: cv.multi_select(all_switches),
+                CONF_OVERHEAD_SWITCHES_STATES: cv.multi_select(available_states),
+                CONF_OVERHEAD_SWITCHES_ACT_ON: cv.multi_select(
+                    LIGHT_GROUP_ACT_ON_OPTIONS
+                ),
+                CONF_OVERHEAD_SWITCHES_TURN_OFF: cv.boolean,
+                CONF_SLEEP_SWITCHES: cv.multi_select(all_switches),
+                CONF_SLEEP_SWITCHES_STATES: cv.multi_select(available_states),
+                CONF_SLEEP_SWITCHES_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_SLEEP_SWITCHES_TURN_OFF: cv.boolean,
+                CONF_ACCENT_SWITCHES: cv.multi_select(all_switches),
+                CONF_ACCENT_SWITCHES_STATES: cv.multi_select(available_states),
+                CONF_ACCENT_SWITCHES_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_ACCENT_SWITCHES_TURN_OFF: cv.boolean,
+                CONF_TASK_SWITCHES: cv.multi_select(all_switches),
+                CONF_TASK_SWITCHES_STATES: cv.multi_select(available_states),
+                CONF_TASK_SWITCHES_ACT_ON: cv.multi_select(LIGHT_GROUP_ACT_ON_OPTIONS),
+                CONF_TASK_SWITCHES_TURN_OFF: cv.boolean,
+            },
+            selectors={
+                CONF_OVERHEAD_SWITCHES: self._build_selector_entity_simple(
+                    all_switches, multiple=True
+                ),
+                CONF_OVERHEAD_SWITCHES_STATES: self._build_selector_select(
+                    available_states,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.AREA_STATES,
+                ),
+                CONF_OVERHEAD_SWITCHES_ACT_ON: self._build_selector_select(
+                    LIGHT_GROUP_ACT_ON_OPTIONS,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.CONTROL_ON,
+                ),
+                CONF_OVERHEAD_SWITCHES_TURN_OFF: self._build_selector_boolean(),
+                CONF_SLEEP_SWITCHES: self._build_selector_entity_simple(
+                    all_switches, multiple=True
+                ),
+                CONF_SLEEP_SWITCHES_STATES: self._build_selector_select(
+                    available_states,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.AREA_STATES,
+                ),
+                CONF_SLEEP_SWITCHES_ACT_ON: self._build_selector_select(
+                    LIGHT_GROUP_ACT_ON_OPTIONS,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.CONTROL_ON,
+                ),
+                CONF_SLEEP_SWITCHES_TURN_OFF: self._build_selector_boolean(),
+                CONF_ACCENT_SWITCHES: self._build_selector_entity_simple(
+                    all_switches, multiple=True
+                ),
+                CONF_ACCENT_SWITCHES_STATES: self._build_selector_select(
+                    available_states,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.AREA_STATES,
+                ),
+                CONF_ACCENT_SWITCHES_ACT_ON: self._build_selector_select(
+                    LIGHT_GROUP_ACT_ON_OPTIONS,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.CONTROL_ON,
+                ),
+                CONF_ACCENT_SWITCHES_TURN_OFF: self._build_selector_boolean(),
+                CONF_TASK_SWITCHES: self._build_selector_entity_simple(
+                    all_switches, multiple=True
+                ),
+                CONF_TASK_SWITCHES_STATES: self._build_selector_select(
+                    available_states,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.AREA_STATES,
+                ),
+                CONF_TASK_SWITCHES_ACT_ON: self._build_selector_select(
+                    LIGHT_GROUP_ACT_ON_OPTIONS,
+                    multiple=True,
+                    translation_key=SelectorTranslationKeys.CONTROL_ON,
+                ),
+                CONF_TASK_SWITCHES_TURN_OFF: self._build_selector_boolean(),
             },
             user_input=user_input,
         )
