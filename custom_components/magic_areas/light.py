@@ -323,7 +323,7 @@ class AreaLightGroup(MagicLightGroup):
                 "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
                 self.name,
             )
-            return self._turn_off()
+            return self._turn_off(force=True)
 
         # If area clear
         if AreaStates.CLEAR in new_states:
@@ -360,7 +360,7 @@ class AreaLightGroup(MagicLightGroup):
                 self.name,
             )
             self.controlled = True
-            return self._turn_off()
+            return self._turn_off(force=True)
 
         # Preserve legacy behavior by default: react to bright transition only.
         if self.area.has_state(AreaStates.BRIGHT):
@@ -517,12 +517,12 @@ class AreaLightGroup(MagicLightGroup):
 
         return True
 
-    def _turn_off(self):
+    def _turn_off(self, force: bool = False):
         """Turn off light if it's not already off and we're controlling it."""
-        if not self.controlling:
+        if not force and not self.controlling:
             return False
 
-        if not self.is_on:
+        if not force and not self.is_on:
             return False
 
         service_data = {ATTR_ENTITY_ID: self.entity_id}
