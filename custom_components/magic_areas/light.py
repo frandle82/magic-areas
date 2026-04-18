@@ -216,6 +216,12 @@ class AreaLightGroup(MagicLightGroup):
                 LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT[self.category],
                 False,
             )
+        elif self.category == LightGroupCategory.ALL:
+            feature_config = area.feature_config(MagicAreasFeatures.LIGHT_GROUPS)
+            self.turn_off_when_bright = any(
+                feature_config.get(LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT[category], False)
+                for category in LIGHT_GROUP_CATEGORIES
+            )
 
         # Add static attributes
         self._attr_extra_state_attributes["lights"] = self._entity_ids
@@ -312,6 +318,13 @@ class AreaLightGroup(MagicLightGroup):
         # pylint: disable-next=unused-variable
         new_states, lost_states = states_tuple
 
+        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
+            self.logger.debug(
+                "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
+                self.name,
+            )
+            return self._turn_off(force=True)
+
         # If area clear
         if AreaStates.CLEAR in new_states:
             self.logger.debug("%s: Area is clear, should turn off lights!", self.name)
@@ -347,7 +360,7 @@ class AreaLightGroup(MagicLightGroup):
                 self.name,
             )
             self.controlled = True
-            return self._turn_off()
+            return self._turn_off(force=True)
 
         # Preserve legacy behavior by default: react to bright transition only.
         if self.area.has_state(AreaStates.BRIGHT):
@@ -504,12 +517,12 @@ class AreaLightGroup(MagicLightGroup):
 
         return True
 
-    def _turn_off(self):
+    def _turn_off(self, force: bool = False):
         """Turn off light if it's not already off and we're controlling it."""
-        if not self.controlling:
+        if not force and not self.controlling:
             return False
 
-        if not self.is_on:
+        if not force and not self.is_on:
             return False
 
         service_data = {ATTR_ENTITY_ID: self.entity_id}
