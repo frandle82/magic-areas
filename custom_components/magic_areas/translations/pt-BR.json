@@ -33,7 +33,8 @@
                     "ble_trackers": "Monitorar sensores de rastreador Bluetooth",
                     "wasp_in_a_box": "Criar sensor de Vespa em uma Caixa",
                     "climate_control": "Criar controlador climático",
-                    "fan_groups": "Criar grupo de ventiladores"
+                    "fan_groups": "Criar grupo de ventiladores",
+                    "switch_groups": "Criar grupos de interruptores"
                 }
             },
             "show_menu": {
@@ -54,7 +55,8 @@
                     "feature_conf_ble_trackers": "Configurar monitoramento de rastreadores BLE",
                     "feature_conf_fan_groups": "Configurar grupos de ventiladores",
                     "feature_conf_wasp_in_a_box": "Configurar Vespa em uma caixa",
-                    "feature_conf_climate_control": "Configurar o controle climático"
+                    "feature_conf_climate_control": "Configurar controle climático",
+                    "feature_conf_switch_groups": "Configurar grupos de interruptores"
                 }
             },
             "feature_conf_health": {
@@ -90,6 +92,20 @@
                     "accent_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos.",
                     "task_lights_states": "Configure quais estados de área irão acionar este grupo de luzes. Os grupos de luz serão ativados enquanto a área estiver neste estado e desativados se a área perder esses estados. Por exemplo, se você deseja que a luz permaneça “acesa” após um longo período de tempo, você também precisa selecionar o estado “estendido”.",
                     "task_lights_act_on": "Selecione se este grupo de luzes deve ser controlado somente quando uma área for ocupada pela primeira vez, somente nas mudanças de estado da área ou ambos."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Grupos de interruptores",
+                "description": "Cria grupos de interruptores gerenciados por área para cenários de sono e tarefa. Cada grupo pode definir se a ação de estado liga ou desliga os interruptores.",
+                "data": {
+                    "sleep_switches": "Interruptores de sono",
+                    "sleep_switches_states": "Estados em que os interruptores de sono ficam ligados",
+                    "sleep_switches_act_on": "Quando os interruptores de sono devem ser controlados?",
+                    "sleep_switches_action": "Ação para interruptores de sono",
+                    "task_switches": "Interruptores de tarefa",
+                    "task_switches_states": "Estados em que os interruptores de tarefa ficam ligados",
+                    "task_switches_act_on": "Quando os interruptores de tarefa devem ser controlados?",
+                    "task_switches_action": "Ação para interruptores de tarefa"
                 }
             },
             "feature_conf_presence_hold": {

@@ -32,6 +32,7 @@
           "health": "Utwórz sensory zdrowia",
           "presence_hold": "Utwórz przełącznik blokady obecności",
           "ble_trackers": "Utwórz sensory śledzenia BLE (Bluetooth Low Energy)",
+          "switch_groups": "Utwórz grupy przełączników",
           "wasp_in_a_box": "Utwórz sensor 'Owad w pojemniku'"
         }
       },
@@ -52,7 +53,8 @@
           "feature_conf_aggregates": "Skonfiguruj sensory agregacji",
           "feature_conf_presence_hold": "Skonfiguruj przełącznik blokady obecności",
           "feature_conf_ble_trackers": "Skonfiguruj monitoring śledzenia BLE",
-          "feature_conf_wasp_in_a_box": "Skonfiguruj `owad w pojemniku`"
+          "feature_conf_wasp_in_a_box": "Skonfiguruj `owad w pojemniku`",
+          "feature_conf_switch_groups": "Skonfiguruj grupy przełączników"
         }
       },
       "feature_conf_health": {
@@ -88,6 +90,20 @@
           "accent_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach.",
           "task_lights_states": "Skonfiguruj stan obszaru, bedący wyzwalaczem dla tej grupy oświetlenia. Grupy oświetlenia będą załączane, gdy obszar znajdzie się we wskazanym stanie, a wyłączane, gdy obszar znajdzie się w innym stanie, niż skonfigurowany tutaj. Np. jeśli chcesz, aby oświetlenie pozostało załączone po dłuższym czasie, wskaż także wartość przedłużenia czasu.",
           "task_lights_act_on": "Wskaż, czy ta grupa oświetlenia powinna być sterowana tylko w chwili zajętości obszaru, zmiany stanu zajętości, czy w obu tych przypadkach."
+        }
+      },
+      "feature_conf_switch_groups": {
+        "title": "Grupy przełączników",
+        "description": "Tworzy grupy przełączników zarządzane przez obszar dla scenariuszy snu i zadań. Każda grupa może określić, czy akcja stanu ma włączać czy wyłączać przełączniki.",
+        "data": {
+          "sleep_switches": "Przełączniki snu",
+          "sleep_switches_states": "Stany, w których przełączniki snu są włączone",
+          "sleep_switches_act_on": "Kiedy sterować przełącznikami snu?",
+          "sleep_switches_action": "Akcja dla przełączników snu",
+          "task_switches": "Przełączniki zadań",
+          "task_switches_states": "Stany, w których przełączniki zadań są włączone",
+          "task_switches_act_on": "Kiedy sterować przełącznikami zadań?",
+          "task_switches_action": "Akcja dla przełączników zadań"
         }
       },
       "feature_conf_presence_hold": {

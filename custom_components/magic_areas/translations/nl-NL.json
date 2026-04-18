@@ -30,7 +30,11 @@
                     "aggregates": "Creëer geaggregeerde sensoren",
                     "health": "Creëer gezondheidssensoren",
                     "presence_hold": "Maak een aanwezigheids-houdschakelaar",
-                    "ble_trackers": "Monitor Bluetooth-trackersensoren"
+                    "ble_trackers": "Monitor Bluetooth-trackersensoren",
+                    "fan_groups": "Maak ventilatorgroepen",
+                    "climate_control": "Maak klimaatregeling",
+                    "switch_groups": "Maak schakelaar-groepen",
+                    "wasp_in_a_box": "Maak Wasp in a Box"
                 }
             },
             "show_menu": {
@@ -48,7 +52,11 @@
                     "feature_conf_area_aware_media_player": "Configureer gebiedsbewuste mediaspeler",
                     "feature_conf_aggregates": "Configureer aggregaatsensoren",
                     "feature_conf_presence_hold": "Configureer de aanwezigheids-houdschakelaar",
-                    "feature_conf_ble_trackers": "Configureer BLE-trackerbewaking"
+                    "feature_conf_ble_trackers": "Configureer BLE-trackerbewaking",
+                    "feature_conf_climate_control": "Klimaatregeling configureren",
+                    "feature_conf_fan_groups": "Ventilatorgroepen configureren",
+                    "feature_conf_switch_groups": "Schakelaar-groepen configureren",
+                    "feature_conf_wasp_in_a_box": "Wasp in a Box configureren"
                 }
             },
             "feature_conf_health": {
@@ -84,6 +92,20 @@
                     "accent_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide.",
                     "task_lights_states": "Configureer welke gebiedsstatussen deze lichtgroep activeren. Lichtgroepen worden 'aan' gezet als het gebied zich in deze toestand bevindt en 'uit' als het gebied deze toestanden verliest. Als u bijvoorbeeld wilt dat het licht na een langere periode 'aan' blijft, moet u ook de 'uitgebreide' status selecteren.",
                     "task_lights_act_on": "Selecteer of deze lichtgroep alleen moet worden aangestuurd als een gebied voor het eerst bezet wordt, alleen bij veranderingen in de gebiedsstatus of beide."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Schakelaar-groepen",
+                "description": "Maakt gebiedsbeheerde schakelaar-groepen voor slaap- en taakscenario's. Elke groep kan bepalen of de statusactie schakelaars aan of uit zet.",
+                "data": {
+                    "sleep_switches": "Slaapschakelaars",
+                    "sleep_switches_states": "Statussen waarin slaapschakelaars aan staan",
+                    "sleep_switches_act_on": "Wanneer moeten slaapschakelaars worden aangestuurd?",
+                    "sleep_switches_action": "Actie voor slaapschakelaars",
+                    "task_switches": "Taakschakelaars",
+                    "task_switches_states": "Statussen waarin taakschakelaars aan staan",
+                    "task_switches_act_on": "Wanneer moeten taakschakelaars worden aangestuurd?",
+                    "task_switches_action": "Actie voor taakschakelaars"
                 }
             },
             "feature_conf_presence_hold": {

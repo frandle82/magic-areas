@@ -32,7 +32,9 @@
                     "presence_hold": "Créer un interrupteur de maintien de présence",
                     "ble_trackers": "Surveiller les capteurs de suivi Bluetooth",
                     "fan_groups": "Créer groupes ventilateurs",
-                    "climate_control": "Créer contrôleur climat"
+                    "climate_control": "Créer contrôleur climat",
+                    "switch_groups": "Créer des groupes d'interrupteurs",
+                    "wasp_in_a_box": "Créer Wasp in a Box"
                 }
             },
             "show_menu": {
@@ -52,7 +54,9 @@
                     "feature_conf_presence_hold": "Configurer l'interrupteur de maintien de présence",
                     "feature_conf_ble_trackers": "Configurer la surveillance du tracker BLE",
                     "feature_conf_fan_groups": "Configurer groupes ventilateurs",
-                    "feature_conf_climate_control": "Configurer contrôle climat"
+                    "feature_conf_climate_control": "Configurer contrôle climat",
+                    "feature_conf_switch_groups": "Configurer les groupes d'interrupteurs",
+                    "feature_conf_wasp_in_a_box": "Configurer Wasp in a Box"
                 }
             },
             "feature_conf_health": {
@@ -88,6 +92,20 @@
                     "accent_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux.",
                     "task_lights_states": "Configurez les états de pièce qui déclencheront ce groupe de lumières. Les groupes de lumières seront allumés lorsque la pièce est dans cet état et éteints si la pièce perd ces états. Par exemple, si vous souhaitez que la lumière reste allumée après une période prolongée, vous devez également sélectionner l'état `extended`.",
                     "task_lights_act_on": "Sélectionnez si ce groupe de lumières doit être contrôlé uniquement lorsque la pièce est occupée pour la première fois, uniquement lors des changements d'état de la pièce ou les deux."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Groupes d'interrupteurs",
+                "description": "Crée des groupes d'interrupteurs gérés par zone pour les scénarios de sommeil et de tâches. Chaque groupe peut définir si l'action d'état allume ou éteint les interrupteurs.",
+                "data": {
+                    "sleep_switches": "Interrupteurs sommeil",
+                    "sleep_switches_states": "États dans lesquels les interrupteurs sommeil sont allumés",
+                    "sleep_switches_act_on": "Quand contrôler les interrupteurs sommeil ?",
+                    "sleep_switches_action": "Action pour les interrupteurs sommeil",
+                    "task_switches": "Interrupteurs tâche",
+                    "task_switches_states": "États dans lesquels les interrupteurs tâche sont allumés",
+                    "task_switches_act_on": "Quand contrôler les interrupteurs tâche ?",
+                    "task_switches_action": "Action pour les interrupteurs tâche"
                 }
             },
             "feature_conf_presence_hold": {

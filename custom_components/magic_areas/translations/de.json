@@ -32,6 +32,7 @@
                     "health": "Umweltsensoren",
                     "presence_hold": "Anwesenheitshalteschalter",
                     "ble_trackers": "BLE-Tracker-Überwachung",
+                    "switch_groups": "Schaltergruppen",
                     "wasp_in_a_box": "Wasp in a Box"
                 }
             },
@@ -52,7 +53,8 @@
                     "feature_conf_aggregates": "Aggregierte Sensoren konfigurieren",
                     "feature_conf_presence_hold": "Anwesenheitshalteschalter konfigurieren",
                     "feature_conf_ble_trackers": "BLE-Tracker-Überwachung konfigurieren",
-                    "feature_conf_wasp_in_a_box": "Wasp in a Box konfigurieren"
+                    "feature_conf_wasp_in_a_box": "Wasp in a Box konfigurieren",
+                    "feature_conf_switch_groups": "Schaltergruppen konfigurieren"
                 }
             },
             "feature_conf_health": {
@@ -88,6 +90,20 @@
                     "accent_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden.",
                     "task_lights_states": "Konfigurieren Sie, welche Bereichszustände diese Lichtgruppe auslösen. Lichtgruppen werden eingeschaltet, während sich der Bereich in diesem Zustand befindet, und ausgeschaltet, wenn der Bereich diese Zustände verliert. Wenn das Licht nach einer längeren Zeitspanne eingeschaltet bleiben soll, muss auch der Zustand `erweitert` ausgewählt werden.",
                     "task_lights_act_on": "Soll diese Lichtgruppe nur beim ersten Betreten eines Bereichs, nur bei Zustandsänderungen des Bereichs oder bei beidem gesteuert werden."
+                }
+            },
+            "feature_conf_switch_groups": {
+                "title": "Schaltergruppen",
+                "description": "Erstellt bereichsverwaltete Schaltergruppen für Schlaf-/Aufgaben-Szenarien. Jede Gruppe kann festlegen, ob die Zustandsaktion Schalter ein- oder ausschaltet.",
+                "data": {
+                    "sleep_switches": "Schlaf-Schalter",
+                    "sleep_switches_states": "Zustände, in denen Schlaf-Schalter eingeschaltet sind",
+                    "sleep_switches_act_on": "Wann sollen Schlaf-Schalter gesteuert werden?",
+                    "sleep_switches_action": "Aktion für Schlaf-Schalter",
+                    "task_switches": "Aufgaben-Schalter",
+                    "task_switches_states": "Zustände, in denen Aufgaben-Schalter eingeschaltet sind",
+                    "task_switches_act_on": "Wann sollen Aufgaben-Schalter gesteuert werden?",
+                    "task_switches_action": "Aktion für Aufgaben-Schalter"
                 }
             },
             "feature_conf_presence_hold": {
