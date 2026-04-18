@@ -216,6 +216,12 @@ class AreaLightGroup(MagicLightGroup):
                 LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT[self.category],
                 False,
             )
+        elif self.category == LightGroupCategory.ALL:
+            feature_config = area.feature_config(MagicAreasFeatures.LIGHT_GROUPS)
+            self.turn_off_when_bright = any(
+                feature_config.get(LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT[category], False)
+                for category in LIGHT_GROUP_CATEGORIES
+            )
 
         # Add static attributes
         self._attr_extra_state_attributes["lights"] = self._entity_ids
@@ -311,6 +317,13 @@ class AreaLightGroup(MagicLightGroup):
         """Handle primary state change."""
         # pylint: disable-next=unused-variable
         new_states, lost_states = states_tuple
+
+        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
+            self.logger.debug(
+                "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
+                self.name,
+            )
+            return self._turn_off()
 
         # If area clear
         if AreaStates.CLEAR in new_states:
