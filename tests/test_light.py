@@ -73,24 +73,26 @@ def mock_config_entry_light_groups() -> MockConfigEntry:
 def mock_config_entry_light_groups_advanced() -> MockConfigEntry:
     """Fixture for mock configuration entry with blocking and bright-off options."""
     data = get_basic_config_entry_data(DEFAULT_MOCK_AREA)
-    data.update(
-        {
-            CONF_SECONDARY_STATES: {
-                CONF_SLEEP_ENTITY: "binary_sensor.sleep_sensor",
-                CONF_DARK_ENTITY: "binary_sensor.light_level_sensor",
+    options = {
+        CONF_SECONDARY_STATES: {
+            CONF_SLEEP_ENTITY: "binary_sensor.sleep_sensor",
+            CONF_DARK_ENTITY: "binary_sensor.light_level_sensor",
+        },
+        CONF_ENABLED_FEATURES: {
+            CONF_FEATURE_LIGHT_GROUPS: {
+                CONF_OVERHEAD_LIGHTS: ["light.mock_light_1"],
+                CONF_OVERHEAD_LIGHTS_ACT_ON: LIGHT_GROUP_ACT_ON_OPTIONS,
+                CONF_OVERHEAD_LIGHTS_STATES: [AreaStates.OCCUPIED],
+                CONF_OVERHEAD_LIGHTS_BLOCKING_STATES: [AreaStates.SLEEP],
+                CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT: True,
             },
-            CONF_ENABLED_FEATURES: {
-                CONF_FEATURE_LIGHT_GROUPS: {
-                    CONF_OVERHEAD_LIGHTS: ["light.mock_light_1"],
-                    CONF_OVERHEAD_LIGHTS_ACT_ON: LIGHT_GROUP_ACT_ON_OPTIONS,
-                    CONF_OVERHEAD_LIGHTS_STATES: [AreaStates.OCCUPIED],
-                    CONF_OVERHEAD_LIGHTS_BLOCKING_STATES: [AreaStates.SLEEP],
-                    CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT: True,
-                },
-            },
-        }
+        },
+    }
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data=data,
+        options=options,
     )
-    return MockConfigEntry(domain=DOMAIN, data=data)
 
 
 @pytest.fixture(name="_setup_integration_light_groups")
