@@ -451,6 +451,14 @@ class AreaLightGroup(MagicLightGroup):
             )
             return False
 
+        # Keep lights on while the area is dark unless blocked/clear/bright logic above applies.
+        if self.area.has_state(AreaStates.DARK):
+            self.logger.debug(
+                "%s: Area is dark, skipping turn-off logic for secondary group.",
+                self.name,
+            )
+            return False
+
         # Turn off if we're a PRIORITY_STATE and we're coming out of it
         out_of_priority_states = [
             state
