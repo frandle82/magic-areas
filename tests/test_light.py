@@ -425,6 +425,89 @@ async def test_light_group_turns_off_when_bright(
     light_group_state = hass.states.get(light_group_entity_id)
     assert_state(light_group_state, STATE_OFF)
 
+async def test_light_group_turns_back_on_when_dark_again(
+    hass: HomeAssistant,
+    entities_light_one: list[MockLight],
+    entities_binary_sensor_motion_one: list[MockBinarySensor],
+    entities_light_secondary_states: list[MockBinarySensor],
+    _setup_integration_light_groups_advanced,
+) -> None:
+    """Test lights recover when transitioning from bright back to dark."""
+    light_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_overhead_lights"
+    )
+    light_control_entity_id = (
+        f"{SWITCH_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_light_control"
+    )
+
+    motion_sensor_entity_id = entities_binary_sensor_motion_one[0].entity_id
+    light_level_entity_id = entities_light_secondary_states[1].entity_id
+
+    hass.states.async_set(light_control_entity_id, STATE_ON)
+    await hass.services.async_call(
+        SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: light_control_entity_id}
+    )
+    await hass.async_block_till_done()
+
+    # Occupied + dark -> lights on.
+    hass.states.async_set(light_level_entity_id, STATE_OFF)
+    hass.states.async_set(motion_sensor_entity_id, STATE_ON)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_ON)
+
+    # Bright -> lights off (configured behavior).
+    hass.states.async_set(light_level_entity_id, STATE_ON)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_OFF)
+
+    # Dark again while still occupied -> lights should turn back on and stay on.
+    hass.states.async_set(light_level_entity_id, STATE_OFF)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_ON)
+
+
+async def test_light_group_does_not_turn_on_when_bright(
+    hass: HomeAssistant,
+    entities_light_one: list[MockLight],
+    entities_binary_sensor_motion_one: list[MockBinarySensor],
+    entities_light_secondary_states: list[MockBinarySensor],
+    _setup_integration_light_groups_bright,
+) -> None:
+    """Test occupied + bright does not turn lights on from off state."""
+    light_group_entity_id = (
+        f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_overhead_lights"
+    )
+    light_control_entity_id = (
+        f"{SWITCH_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_light_control"
+    )
+
+    motion_sensor_entity_id = entities_binary_sensor_motion_one[0].entity_id
+    light_level_entity_id = entities_light_secondary_states[1].entity_id
+
+    hass.states.async_set(light_control_entity_id, STATE_ON)
+    await hass.services.async_call(
+        SWITCH_DOMAIN, SERVICE_TURN_ON, {ATTR_ENTITY_ID: light_control_entity_id}
+    )
+    await hass.async_block_till_done()
+
+    # Keep room bright and then mark occupied.
+    hass.states.async_set(light_level_entity_id, STATE_ON)
+    hass.states.async_set(motion_sensor_entity_id, STATE_ON)
+    await hass.async_block_till_done()
+    await asyncio.sleep(1)
+
+    light_group_state = hass.states.get(light_group_entity_id)
+    assert_state(light_group_state, STATE_OFF)
+
 
 async def test_light_group_stays_on_when_bright_if_not_configured(
     hass: HomeAssistant,

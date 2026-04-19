@@ -436,6 +436,13 @@ class AreaLightGroup(MagicLightGroup):
                 valid_states.remove(non_priority_state)
 
         if valid_states:
+            if self.area.has_state(AreaStates.BRIGHT) and not self.is_on:
+                self.logger.debug(
+                    "%s: Area is bright and group is off, skipping turn-on.",
+                    self.name,
+                )
+                return False
+
             self.logger.debug(
                 "%s: Area has valid states (%s), Group should turn on!",
                 self.name,
