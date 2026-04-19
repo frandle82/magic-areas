@@ -323,7 +323,13 @@ class AreaLightGroup(MagicLightGroup):
         # pylint: disable-next=unused-variable
         new_states, lost_states = states_tuple
 
-        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
+        if self.turn_off_when_bright and (
+            AreaStates.BRIGHT in new_states
+            or (
+                self.area.has_state(AreaStates.BRIGHT)
+                and AreaStates.BRIGHT not in lost_states
+            )
+        ):
             self.logger.debug(
                 "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
                 self.name,
@@ -359,7 +365,13 @@ class AreaLightGroup(MagicLightGroup):
             self.controlled = True
             return self._turn_off()
 
-        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
+        if self.turn_off_when_bright and (
+            AreaStates.BRIGHT in new_states
+            or (
+                self.area.has_state(AreaStates.BRIGHT)
+                and AreaStates.BRIGHT not in lost_states
+            )
+        ):
             self.logger.debug(
                 "%s: Area is bright and turn_off_when_bright is enabled, turning off.",
                 self.name,
