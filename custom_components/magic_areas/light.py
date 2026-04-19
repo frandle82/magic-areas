@@ -320,18 +320,11 @@ class AreaLightGroup(MagicLightGroup):
 
     def state_change_primary(self, states_tuple):
         """Handle primary state change."""
-        # pylint: disable-next=unused-variable
-        new_states, lost_states = states_tuple
+        new_states, _ = states_tuple
 
-        if self.turn_off_when_bright and (
-            AreaStates.BRIGHT in new_states
-            or (
-                self.area.has_state(AreaStates.BRIGHT)
-                and AreaStates.BRIGHT not in lost_states
-            )
-        ):
+        if self.turn_off_when_bright and AreaStates.BRIGHT in new_states:
             self.logger.debug(
-                "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
+                "%s: Parent group turning off due to dark->bright transition and turn_off_when_bright.",
                 self.name,
             )
             return self._turn_off(force=True)
@@ -358,22 +351,15 @@ class AreaLightGroup(MagicLightGroup):
         active_blocking_states = self._active_blocking_states()
         if active_blocking_states:
             self.logger.debug(
-                "%s: Blocking states active (%s), turning off/keeping off.",
+                "%s: Blocking states active (%s), skipping automatic light switching.",
                 self.name,
                 str(active_blocking_states),
             )
-            self.controlled = True
-            return self._turn_off()
+            return False
 
-        if self.turn_off_when_bright and (
-            AreaStates.BRIGHT in new_states
-            or (
-                self.area.has_state(AreaStates.BRIGHT)
-                and AreaStates.BRIGHT not in lost_states
-            )
-        ):
+        if self.turn_off_when_bright and AreaStates.BRIGHT in new_states:
             self.logger.debug(
-                "%s: Area is bright and turn_off_when_bright is enabled, turning off.",
+                "%s: Area transitioned to bright and turn_off_when_bright is enabled, turning off.",
                 self.name,
             )
             self.controlled = True

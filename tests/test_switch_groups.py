@@ -120,3 +120,25 @@ async def test_switch_group_action_is_applied(
 
     switch_group_state = hass.states.get(switch_group_entity_id)
     assert_state(switch_group_state, STATE_ON)
+
+
+async def test_switch_group_all_only_contains_assigned_switches(
+    hass: HomeAssistant,
+    entities_switch_and_sleep: list[Any],
+    _setup_integration_switch_groups,
+) -> None:
+    """Test all_switches group only contains switches explicitly assigned to groups."""
+    del entities_switch_and_sleep
+
+    all_group_entity_id = (
+        f"{SWITCH_DOMAIN}.magic_areas_switch_groups_{DEFAULT_MOCK_AREA}_switch_group"
+    )
+    all_group_state = hass.states.get(all_group_entity_id)
+    assert all_group_state is not None
+
+    group_switches = all_group_state.attributes["switches"]
+    assert "switch.mock_tv" in group_switches
+    assert (
+        f"{SWITCH_DOMAIN}.magic_areas_switch_groups_{DEFAULT_MOCK_AREA}_switch_group_control"
+        not in group_switches
+    )

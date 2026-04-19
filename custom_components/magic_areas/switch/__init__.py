@@ -140,6 +140,7 @@ def _build_switch_groups(area: MagicArea) -> list["AreaSwitchGroup"]:
     available_switches = [e["entity_id"] for e in area.entities[SWITCH_DOMAIN]]
     switch_groups: list[AreaSwitchGroup] = []
     child_groups: list[AreaSwitchGroup] = []
+    assigned_switches: list[str] = []
 
     for category in SWITCH_GROUP_CATEGORIES:
         category_switches = [
@@ -155,12 +156,14 @@ def _build_switch_groups(area: MagicArea) -> list["AreaSwitchGroup"]:
         switch_group = AreaSwitchGroup(area, category_switches, category)
         switch_groups.append(switch_group)
         child_groups.append(switch_group)
+        assigned_switches.extend(category_switches)
 
-    if available_switches:
+    unique_assigned_switches = list(dict.fromkeys(assigned_switches))
+    if unique_assigned_switches:
         switch_groups.append(
             AreaSwitchGroup(
                 area,
-                available_switches,
+                unique_assigned_switches,
                 category=SwitchGroupCategory.ALL,
                 child_groups=child_groups,
             )

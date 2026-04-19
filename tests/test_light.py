@@ -350,7 +350,7 @@ async def test_light_group_blocking_state_turns_off(
     entities_light_secondary_states: list[MockBinarySensor],
     _setup_integration_light_groups_advanced,
 ) -> None:
-    """Test that a configured blocking state turns a group off."""
+    """Test that a configured blocking state prevents any automatic switching."""
     light_group_entity_id = (
         f"{LIGHT_DOMAIN}.magic_areas_light_groups_{DEFAULT_MOCK_AREA}_overhead_lights"
     )
@@ -378,8 +378,9 @@ async def test_light_group_blocking_state_turns_off(
     await hass.async_block_till_done()
     await asyncio.sleep(1)
 
+    # Blocking state should not actively switch lights off.
     light_group_state = hass.states.get(light_group_entity_id)
-    assert_state(light_group_state, STATE_OFF)
+    assert_state(light_group_state, STATE_ON)
 
 
 async def test_light_group_turns_off_when_bright(
