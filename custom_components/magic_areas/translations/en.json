@@ -471,6 +471,7 @@
       "options": {
         "clear": "Clear",
         "occupied": "Occupied",
+        "dark": "Dark",
         "extended": "Extended",
         "sleep": "Sleep"
       }
@@ -478,7 +479,9 @@
     "control_on": {
       "options": {
         "occupancy": "When area goes from clear to occupied",
-        "state": "When secondary state changes"
+        "dark": "When area goes from bright to dark",
+        "extended": "When area goes from occupied to extended",
+        "sleep": "When area enters sleep"
       }
     },
     "calculation_mode": {
