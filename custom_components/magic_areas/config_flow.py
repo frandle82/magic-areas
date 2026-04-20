@@ -958,12 +958,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
         if not isinstance(secondary_states_config, dict):
             secondary_states_config = {}
 
-        light_group_state_exempt = [AREA_STATE_DARK]
         for extra_state, extra_state_entity in CONFIGURABLE_AREA_STATE_MAP.items():
-            # Skip AREA_STATE_DARK because lights can't be tied to this state
-            if extra_state in light_group_state_exempt:
-                continue
-
             if secondary_states_config.get(extra_state_entity, None):
                 available_states.append(extra_state)
 
