@@ -1,6 +1,7 @@
 """Platform file for Magic Area's light entities."""
 
 import logging
+from time import monotonic
 
 from homeassistant.components.group.light import FORWARDED_ATTRIBUTES, LightGroup
 from homeassistant.components.light.const import DOMAIN as LIGHT_DOMAIN
@@ -23,12 +24,16 @@ from custom_components.magic_areas.const import (
     EMPTY_STRING,
     EVENT_MAGICAREAS_AREA_STATE_CHANGED,
     LIGHT_GROUP_ACT_ON,
+    LIGHT_GROUP_ACT_ON_DARK_CHANGE,
+    LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE,
     LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE,
+    LIGHT_GROUP_ACT_ON_SLEEP_CHANGE,
     LIGHT_GROUP_ACT_ON_STATE_CHANGE,
     LIGHT_GROUP_BLOCKING_STATES,
     LIGHT_GROUP_CATEGORIES,
     LIGHT_GROUP_DEFAULT_ICON,
     LIGHT_GROUP_ICONS,
+    LIGHT_GROUP_STATE_RULES,
     LIGHT_GROUP_STATES,
     LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT,
     AreaStates,
@@ -40,6 +45,7 @@ from custom_components.magic_areas.helpers.area import get_area_from_config_entr
 from custom_components.magic_areas.util import cleanup_removed_entries
 
 _LOGGER = logging.getLogger(__name__)
+CONTROL_EVENT_GRACE_SECONDS = 2.0
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -187,12 +193,14 @@ class AreaLightGroup(MagicLightGroup):
 
         self.category = category
         self.assigned_states = []
+        self.state_rules = []
         self.act_on = []
         self.blocking_states = []
         self.turn_off_when_bright = False
 
         self.controlling = True
         self.controlled = False
+        self._last_control_action_ts = 0.0
 
         self._icon = LIGHT_GROUP_DEFAULT_ICON
 
@@ -203,9 +211,13 @@ class AreaLightGroup(MagicLightGroup):
         if self.category and self.category != LightGroupCategory.ALL:
             feature_config = area.feature_config(MagicAreasFeatures.LIGHT_GROUPS)
             self.assigned_states = feature_config.get(LIGHT_GROUP_STATES[self.category], [])
+            self.state_rules = feature_config.get(
+                LIGHT_GROUP_STATE_RULES[self.category], []
+            )
             self.act_on = feature_config.get(
                 LIGHT_GROUP_ACT_ON[self.category], DEFAULT_LIGHT_GROUP_ACT_ON
             )
+            self.act_on = self._normalize_act_on(self.act_on)
             self.blocking_states = feature_config.get(
                 LIGHT_GROUP_BLOCKING_STATES[self.category], []
             )
@@ -320,12 +332,11 @@ class AreaLightGroup(MagicLightGroup):
 
     def state_change_primary(self, states_tuple):
         """Handle primary state change."""
-        # pylint: disable-next=unused-variable
-        new_states, lost_states = states_tuple
+        new_states, _ = states_tuple
 
-        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
+        if self.turn_off_when_bright and AreaStates.BRIGHT in new_states:
             self.logger.debug(
-                "%s: Parent group turning off because area is bright and turn_off_when_bright is enabled.",
+                "%s: Parent group turning off due to dark->bright transition and turn_off_when_bright.",
                 self.name,
             )
             return self._turn_off(force=True)
@@ -341,6 +352,30 @@ class AreaLightGroup(MagicLightGroup):
     def state_change_secondary(self, states_tuple):
         """Handle secondary state change."""
         new_states, lost_states = states_tuple
+        configured_rule_states = self._configured_rule_states()
+        brightness_state_changed = self._brightness_state_changed(
+            new_states, lost_states
+        )
+
+        # Re-arm automatic control on meaningful area transitions.
+        # This prevents groups from staying permanently disabled after a manual override
+        # while the area remains occupied.
+        if not self.controlling and (
+            AreaStates.OCCUPIED in new_states
+            or AreaStates.DARK in new_states
+            or AreaStates.BRIGHT in new_states
+            or AreaStates.DARK in lost_states
+            or AreaStates.BRIGHT in lost_states
+            or AreaStates.EXTENDED in new_states
+            or AreaStates.SLEEP in new_states
+        ):
+            self.logger.debug(
+                "%s: Re-enabling automatic control due area state transition.",
+                self.name,
+            )
+            self.controlling = True
+            self._attr_extra_state_attributes["controlling"] = self.controlling
+            self.schedule_update_ha_state()
 
         if AreaStates.CLEAR in new_states:
             self.logger.debug(
@@ -349,19 +384,9 @@ class AreaLightGroup(MagicLightGroup):
             self.reset_control()
             return False
 
-        active_blocking_states = self._active_blocking_states()
-        if active_blocking_states:
+        if self.turn_off_when_bright and AreaStates.BRIGHT in new_states:
             self.logger.debug(
-                "%s: Blocking states active (%s), turning off/keeping off.",
-                self.name,
-                str(active_blocking_states),
-            )
-            self.controlled = True
-            return self._turn_off()
-
-        if self.turn_off_when_bright and self.area.has_state(AreaStates.BRIGHT):
-            self.logger.debug(
-                "%s: Area is bright and turn_off_when_bright is enabled, turning off.",
+                "%s: Area transitioned to bright and turn_off_when_bright is enabled, turning off.",
                 self.name,
             )
             self.controlled = True
@@ -372,9 +397,9 @@ class AreaLightGroup(MagicLightGroup):
             self.logger.debug("%s: No new or lost states, noop.", self.name)
             return False
 
-        # Do not handle lights that are not tied to a state
-        if not self.assigned_states:
-            self.logger.debug("%s: No assigned states. noop.", self.name)
+        # Do not handle lights that are not tied to a state.
+        if not self.assigned_states and not self.state_rules:
+            self.logger.debug("%s: No assigned states/state rules. noop.", self.name)
             return False
 
         # If area clear, do nothing (main group will)
@@ -383,9 +408,10 @@ class AreaLightGroup(MagicLightGroup):
             return False
 
         self.logger.debug(
-            "%s: Assigned states: %s. New states: %s / Lost states %s",
+            "%s: Assigned states: %s. State rules: %s. New states: %s / Lost states %s",
             self.name,
             str(self.assigned_states),
+            str(self.state_rules),
             str(new_states),
             str(lost_states),
         )
@@ -410,20 +436,57 @@ class AreaLightGroup(MagicLightGroup):
         )
 
         # ACT ON Control
-        # Do not act on occupancy change if not defined on act_on
-        if (
-            AreaStates.OCCUPIED in new_states
-            and LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE not in self.act_on
-        ):
+        # Evaluate all relevant trigger changes first, then skip only if none are allowed.
+        # This avoids combined state changes being blocked by a single non-configured trigger.
+        occupancy_changed = AreaStates.OCCUPIED in new_states
+        extended_changed = AreaStates.EXTENDED in new_states
+        sleep_changed = AreaStates.SLEEP in new_states
+
+        trigger_changes = [
+            (
+                "occupancy",
+                occupancy_changed,
+                LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE in self.act_on
+                or AreaStates.OCCUPIED in configured_rule_states,
+            ),
+            (
+                "brightness",
+                brightness_state_changed,
+                LIGHT_GROUP_ACT_ON_DARK_CHANGE in self.act_on
+                or AreaStates.DARK in configured_rule_states
+                or AreaStates.BRIGHT in configured_rule_states,
+            ),
+            (
+                "extended",
+                extended_changed,
+                LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE in self.act_on
+                or AreaStates.EXTENDED in configured_rule_states,
+            ),
+            (
+                "sleep",
+                sleep_changed,
+                LIGHT_GROUP_ACT_ON_SLEEP_CHANGE in self.act_on
+                or AreaStates.SLEEP in configured_rule_states,
+            ),
+        ]
+        relevant_changes = [name for name, changed, _ in trigger_changes if changed]
+        allowed_changes = [
+            name for name, changed, is_allowed in trigger_changes if changed and is_allowed
+        ]
+
+        if relevant_changes and not allowed_changes:
             self.logger.debug(
-                "Area occupancy change detected but not configured to act on. Skipping."
+                "%s: Relevant state changes %s detected but none are configured in act_on/rules. Skipping.",
+                self.name,
+                str(relevant_changes),
             )
             return False
 
-        # Do not act on state change if not defined on act_on
+        # Keep backward compatibility for old "state" trigger values.
         if (
-            AreaStates.OCCUPIED not in new_states
+            not relevant_changes
             and LIGHT_GROUP_ACT_ON_STATE_CHANGE not in self.act_on
+            and not self.state_rules
         ):
             self.logger.debug(
                 "Area state change detected but not configured to act on. Skipping."
@@ -435,7 +498,56 @@ class AreaLightGroup(MagicLightGroup):
             for non_priority_state in non_priority_states:
                 valid_states.remove(non_priority_state)
 
+        if self.state_rules:
+            rules_to_evaluate = [list(rule) for rule in self.state_rules if rule]
+
+            if has_priority_states:
+                priority_rules = []
+                for rule in rules_to_evaluate:
+                    priority_rule = [
+                        state for state in rule if state in AREA_PRIORITY_STATES
+                    ]
+                    if priority_rule:
+                        priority_rules.append(priority_rule)
+                if priority_rules:
+                    rules_to_evaluate = priority_rules
+
+            if self.matches_state_rules(rules_to_evaluate):
+                active_blocking_states = self._active_blocking_states()
+                if active_blocking_states:
+                    self.logger.debug(
+                        "%s: Blocking states active (%s), rule result discarded.",
+                        self.name,
+                        str(active_blocking_states),
+                    )
+                    return False
+
+                self.logger.debug(
+                    "%s: State rules matched (%s), Group should turn on!",
+                    self.name,
+                    str(rules_to_evaluate),
+                )
+                self.controlled = True
+                return self._turn_on()
+
+            self.logger.debug(
+                "%s: State rules not matched (%s), Group should turn off!",
+                self.name,
+                str(rules_to_evaluate),
+            )
+            self.controlled = True
+            return self._turn_off()
+
         if valid_states:
+            active_blocking_states = self._active_blocking_states()
+            if active_blocking_states:
+                self.logger.debug(
+                    "%s: Blocking states active (%s), state match discarded.",
+                    self.name,
+                    str(active_blocking_states),
+                )
+                return False
+
             self.logger.debug(
                 "%s: Area has valid states (%s), Group should turn on!",
                 self.name,
@@ -487,10 +599,59 @@ class AreaLightGroup(MagicLightGroup):
         if self.area.is_occupied():
             relevant_states.append(AreaStates.OCCUPIED)
 
-        if AreaStates.DARK in relevant_states:
-            relevant_states.remove(AreaStates.DARK)
-
         return relevant_states
+
+    @staticmethod
+    def _normalize_act_on(act_on: list[str] | str | None) -> list[str]:
+        """Normalize configured triggers and map legacy state trigger."""
+        if not act_on:
+            return []
+
+        if isinstance(act_on, str):
+            act_on = [act_on]
+
+        normalized = []
+        for trigger in act_on:
+            if trigger == LIGHT_GROUP_ACT_ON_STATE_CHANGE:
+                normalized.extend(
+                    [
+                        LIGHT_GROUP_ACT_ON_DARK_CHANGE,
+                        LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE,
+                        LIGHT_GROUP_ACT_ON_SLEEP_CHANGE,
+                    ]
+                )
+                continue
+            normalized.append(trigger)
+
+        # Keep insertion order while removing duplicates.
+        return list(dict.fromkeys(normalized))
+
+    def matches_state_rules(self, state_rules: list[list[str]]) -> bool:
+        """Return True when any non-empty rule block is fully matched."""
+        return any(
+            all(self.area.has_state(state) for state in rule)
+            for rule in state_rules
+            if rule
+        )
+
+    def _configured_rule_states(self) -> set[str]:
+        """Return flattened set of states used by configured rule blocks."""
+        return {
+            state
+            for rule in self.state_rules
+            if isinstance(rule, list)
+            for state in rule
+        }
+
+    @staticmethod
+    def _brightness_state_changed(
+        new_states: list[str], lost_states: list[str]
+    ) -> bool:
+        """Return True when area brightness changed in either direction."""
+        return any(
+            state in (AreaStates.DARK, AreaStates.BRIGHT)
+            for state in [*new_states, *lost_states]
+        )
 
     def _active_blocking_states(self) -> list[str]:
         """Return configured blocking states that are currently active."""
@@ -514,6 +675,7 @@ class AreaLightGroup(MagicLightGroup):
             return False
 
         self.controlled = True
+        self._last_control_action_ts = monotonic()
 
         service_data = {ATTR_ENTITY_ID: self.entity_id}
         self.hass.services.call(LIGHT_DOMAIN, SERVICE_TURN_ON, service_data)
@@ -528,6 +690,7 @@ class AreaLightGroup(MagicLightGroup):
         if not force and not self.is_on:
             return False
 
+        self._last_control_action_ts = monotonic()
         service_data = {ATTR_ENTITY_ID: self.entity_id}
         self.hass.services.call(LIGHT_DOMAIN, SERVICE_TURN_OFF, service_data)
 
@@ -567,14 +730,20 @@ class AreaLightGroup(MagicLightGroup):
 
     def handle_group_state_change_secondary(self):
         """Handle group state change for secondary area state events."""
-        # If we changed last, unset
-        if self.controlled:
+        within_control_grace = (
+            monotonic() - self._last_control_action_ts
+        ) <= CONTROL_EVENT_GRACE_SECONDS
+
+        # Multiple state_changed events can arrive for one service call.
+        # Treat all events inside the grace window as originating from us.
+        if self.controlled or within_control_grace:
             self.controlled = False
             self.logger.debug("%s: Group controlled by us.", self.name)
-        else:
-            # If not, it was manually controlled, stop controlling
-            self.controlling = False
-            self.logger.debug("%s: Group controlled by something else.", self.name)
+            return
+
+        # If not, it was manually controlled, stop controlling
+        self.controlling = False
+        self.logger.debug("%s: Group controlled by something else.", self.name)
 
     def group_state_changed(self, event):
         """Handle group state change events."""
@@ -610,6 +779,14 @@ class AreaLightGroup(MagicLightGroup):
                             STATE_ON,
                             STATE_OFF,
                         ]
+                    ):
+                        return False
+
+                    # Ignore duplicate state reports (e.g. ON->ON/OFF->OFF),
+                    # otherwise we may incorrectly mark automation as externally controlled.
+                    if (
+                        origin_event.data["old_state"].state
+                        == origin_event.data["new_state"].state
                     ):
                         return False
 
