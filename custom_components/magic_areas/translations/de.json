@@ -473,6 +473,7 @@
         "options": {
           "clear": "Frei",
           "occupied": "Belegt",
+          "dark": "Dunkel",
           "extended": "Erweitert",
           "sleep": "Schlaf"
         }
@@ -480,7 +481,9 @@
       "control_on": {
         "options": {
           "occupancy": "Wenn der Bereich von `Frei` auf `Belegt` wechselt",
-          "state": "Wenn sich der sekundäre Zustand ändert"
+          "dark": "Wenn der Bereich von `Hell` auf `Dunkel` wechselt",
+          "extended": "Wenn der Bereich von `Belegt` auf `Erweitert` wechselt",
+          "sleep": "Wenn der Bereich auf `Schlaf` wechselt"
         }
       },
       "calculation_mode": {
