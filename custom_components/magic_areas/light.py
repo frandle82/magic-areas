@@ -23,7 +23,10 @@ from custom_components.magic_areas.const import (
     EMPTY_STRING,
     EVENT_MAGICAREAS_AREA_STATE_CHANGED,
     LIGHT_GROUP_ACT_ON,
+    LIGHT_GROUP_ACT_ON_DARK_CHANGE,
+    LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE,
     LIGHT_GROUP_ACT_ON_OCCUPANCY_CHANGE,
+    LIGHT_GROUP_ACT_ON_SLEEP_CHANGE,
     LIGHT_GROUP_ACT_ON_STATE_CHANGE,
     LIGHT_GROUP_BLOCKING_STATES,
     LIGHT_GROUP_CATEGORIES,
@@ -206,6 +209,7 @@ class AreaLightGroup(MagicLightGroup):
             self.act_on = feature_config.get(
                 LIGHT_GROUP_ACT_ON[self.category], DEFAULT_LIGHT_GROUP_ACT_ON
             )
+            self.act_on = self._normalize_act_on(self.act_on)
             self.blocking_states = feature_config.get(
                 LIGHT_GROUP_BLOCKING_STATES[self.category], []
             )
@@ -418,9 +422,39 @@ class AreaLightGroup(MagicLightGroup):
             )
             return False
 
-        # Do not act on state change if not defined on act_on
+        if (
+            AreaStates.DARK in new_states
+            and LIGHT_GROUP_ACT_ON_DARK_CHANGE not in self.act_on
+        ):
+            self.logger.debug(
+                "Area dark state change detected but not configured to act on. Skipping."
+            )
+            return False
+
+        if (
+            AreaStates.EXTENDED in new_states
+            and LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE not in self.act_on
+        ):
+            self.logger.debug(
+                "Area extended state change detected but not configured to act on. Skipping."
+            )
+            return False
+
+        if (
+            AreaStates.SLEEP in new_states
+            and LIGHT_GROUP_ACT_ON_SLEEP_CHANGE not in self.act_on
+        ):
+            self.logger.debug(
+                "Area sleep state change detected but not configured to act on. Skipping."
+            )
+            return False
+
+        # Keep backward compatibility for old "state" trigger values.
         if (
             AreaStates.OCCUPIED not in new_states
+            and AreaStates.DARK not in new_states
+            and AreaStates.EXTENDED not in new_states
+            and AreaStates.SLEEP not in new_states
             and LIGHT_GROUP_ACT_ON_STATE_CHANGE not in self.act_on
         ):
             self.logger.debug(
@@ -485,10 +519,32 @@ class AreaLightGroup(MagicLightGroup):
         if self.area.is_occupied():
             relevant_states.append(AreaStates.OCCUPIED)
 
-        if AreaStates.DARK in relevant_states:
-            relevant_states.remove(AreaStates.DARK)
-
         return relevant_states
+
+    @staticmethod
+    def _normalize_act_on(act_on: list[str] | str | None) -> list[str]:
+        """Normalize configured triggers and map legacy state trigger."""
+        if not act_on:
+            return []
+
+        if isinstance(act_on, str):
+            act_on = [act_on]
+
+        normalized = []
+        for trigger in act_on:
+            if trigger == LIGHT_GROUP_ACT_ON_STATE_CHANGE:
+                normalized.extend(
+                    [
+                        LIGHT_GROUP_ACT_ON_DARK_CHANGE,
+                        LIGHT_GROUP_ACT_ON_EXTENDED_CHANGE,
+                        LIGHT_GROUP_ACT_ON_SLEEP_CHANGE,
+                    ]
+                )
+                continue
+            normalized.append(trigger)
+
+        # Keep insertion order while removing duplicates.
+        return list(dict.fromkeys(normalized))
 
     def _active_blocking_states(self) -> list[str]:
         """Return configured blocking states that are currently active."""
