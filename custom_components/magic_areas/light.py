@@ -160,15 +160,24 @@ class MagicLightGroup(MagicEntity, LightGroup):
             key: value for key, value in kwargs.items() if key in FORWARDED_ATTRIBUTES
         }
 
-        # Get active lights or default to all lights
-        active_lights = self._get_active_lights() or self._entity_ids
-        _LOGGER.debug(
-            "%s: restricting call to active lights: %s",
-            self.area.name,
-            str(active_lights),
-        )
-
-        data[ATTR_ENTITY_ID] = active_lights
+        # A plain turn_on should always target all lights in the group.
+        # Restricting to active lights only makes sense for attribute updates
+        # (brightness/color/etc.) to avoid turning additional lights on.
+        if data:
+            active_lights = self._get_active_lights() or self._entity_ids
+            _LOGGER.debug(
+                "%s: restricting attribute update to active lights: %s",
+                self.area.name,
+                str(active_lights),
+            )
+            data[ATTR_ENTITY_ID] = active_lights
+        else:
+            data[ATTR_ENTITY_ID] = self._entity_ids
+            _LOGGER.debug(
+                "%s: plain turn_on targets all lights: %s",
+                self.area.name,
+                str(self._entity_ids),
+            )
 
         _LOGGER.debug("%s: Forwarded turn_on command: %s", self.area.name, data)
 
@@ -226,11 +235,11 @@ class AreaLightGroup(MagicLightGroup):
                 False,
             )
         elif self.category == LightGroupCategory.ALL:
-            feature_config = area.feature_config(MagicAreasFeatures.LIGHT_GROUPS)
-            self.turn_off_when_bright = any(
-                feature_config.get(LIGHT_GROUP_TURN_OFF_WHEN_BRIGHT[category], False)
-                for category in LIGHT_GROUP_CATEGORIES
-            )
+            # Parent group should not inherit "turn_off_when_bright" from child
+            # categories, otherwise it can immediately turn off lights that a
+            # child group just turned on (e.g. task lights in bright rooms).
+            # Brightness-based turn-off is handled on the child groups directly.
+            self.turn_off_when_bright = False
 
         # Add static attributes
         self._attr_extra_state_attributes["lights"] = self._entity_ids
