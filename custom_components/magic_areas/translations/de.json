@@ -236,13 +236,15 @@
                     "preset_clear": "Frei",
                     "preset_occupied": "Belegt",
                     "preset_sleep": "Schlaf",
-                    "preset_extended": "Erweitert"
+                    "preset_extended": "Erweitert",
+                    "climate_occupancy_threshold": "Heizen erst nach Anwesenheit von ... Minuten"
                 },
                 "data_description": {
                     "preset_clear": "Preset, das beim Zustand `Frei` gesetzt wird",
                     "preset_occupied": "Preset, das beim Zustand `Belegt` gesetzt wird",
                     "preset_sleep": "Preset, das beim Zustand `Schlaf` gesetzt wird",
-                    "preset_extended": "Preset, das beim Zustand `Erweitert` gesetzt wird"
+                    "preset_extended": "Preset, das beim Zustand `Erweitert` gesetzt wird",
+                    "climate_occupancy_threshold": "Verhindert, dass kurzes Betreten eines Raumes sofort einen Heizvorgang auslöst."
                 }
             },
             "feature_conf_ble_trackers": {
