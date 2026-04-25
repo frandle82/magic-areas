@@ -218,13 +218,15 @@
           "preset_clear": "Clear",
           "preset_occupied": "Occupied",
           "preset_sleep": "Sleep",
-          "preset_extended": "Extended"
+          "preset_extended": "Extended",
+          "climate_occupancy_threshold": "Heat after presence of ... minutes"
         },
         "data_description": {
           "preset_clear": "Preset to be changed when on `clear` state.",
           "preset_occupied": "Preset to be changed when on `occupied` state.",
           "preset_sleep": "Preset to be changed when on `sleep` state.",
-          "preset_extended": "Preset to be changed when on `extended` state."
+          "preset_extended": "Preset to be changed when on `extended` state.",
+          "climate_occupancy_threshold": "Prevents brief room visits from immediately starting a heating cycle."
         }
       },
       "feature_conf_ble_trackers": {
