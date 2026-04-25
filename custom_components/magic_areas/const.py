@@ -494,6 +494,12 @@ ATTR_FEATURES = "features"
 ATTR_PRESENCE_SENSORS = "presence_sensors"
 
 PRESENCE_SENSOR_VALID_ON_STATES = [STATE_ON, STATE_OPEN, STATE_PLAYING]
+PRESENCE_CONTROL_ENTITY_DOMAINS = [
+    "person",
+    DEVICE_TRACKER_DOMAIN,
+    BINARY_SENSOR_DOMAIN,
+]
+PRESENCE_CONTROL_VALID_ON_STATES = ["home", STATE_ON]
 
 # Icons
 ICON_PRESENCE_HOLD = "mdi:car-brake-hold"
@@ -615,6 +621,7 @@ CONF_SECONDARY_STATES, DEFAULT_AREA_STATES = "secondary_states", {}  # cv.ensure
 CONF_INCLUDE_ENTITIES = "include_entities"  # cv.entity_ids
 CONF_EXCLUDE_ENTITIES = "exclude_entities"  # cv.entity_ids
 CONF_KEEP_ONLY_ENTITIES = "keep_only_entities"  # cv.entity_ids
+CONF_PRESENCE_CONTROL_ENTITIES = "presence_control_entities"  # cv.entity_ids
 (
     CONF_PRESENCE_DEVICE_PLATFORMS,
     DEFAULT_PRESENCE_DEVICE_PLATFORMS,
@@ -1209,6 +1216,7 @@ REGULAR_AREA_BASIC_OPTIONS_SCHEMA = vol.Schema(
         ),
         vol.Optional(CONF_INCLUDE_ENTITIES, default=[]): cv.entity_ids,
         vol.Optional(CONF_EXCLUDE_ENTITIES, default=[]): cv.entity_ids,
+        vol.Optional(CONF_PRESENCE_CONTROL_ENTITIES, default=[]): cv.entity_ids,
         vol.Optional(
             CONF_RELOAD_ON_REGISTRY_CHANGE, default=DEFAULT_RELOAD_ON_REGISTRY_CHANGE
         ): cv.boolean,
@@ -1266,6 +1274,7 @@ REGULAR_AREA_SCHEMA = vol.Schema(
         ),
         vol.Optional(CONF_INCLUDE_ENTITIES, default=[]): cv.entity_ids,
         vol.Optional(CONF_EXCLUDE_ENTITIES, default=[]): cv.entity_ids,
+        vol.Optional(CONF_PRESENCE_CONTROL_ENTITIES, default=[]): cv.entity_ids,
         vol.Optional(
             CONF_RELOAD_ON_REGISTRY_CHANGE, default=DEFAULT_RELOAD_ON_REGISTRY_CHANGE
         ): cv.boolean,
@@ -1321,6 +1330,7 @@ OPTIONS_AREA = [
     (CONF_TYPE, DEFAULT_TYPE, vol.In([AREA_TYPE_INTERIOR, AREA_TYPE_EXTERIOR])),
     (CONF_INCLUDE_ENTITIES, [], cv.entity_ids),
     (CONF_EXCLUDE_ENTITIES, [], cv.entity_ids),
+    (CONF_PRESENCE_CONTROL_ENTITIES, [], cv.entity_ids),
     (CONF_RELOAD_ON_REGISTRY_CHANGE, DEFAULT_RELOAD_ON_REGISTRY_CHANGE, cv.boolean),
     (CONF_IGNORE_DIAGNOSTIC_ENTITIES, DEFAULT_IGNORE_DIAGNOSTIC_ENTITIES, cv.boolean),
 ]
