@@ -46,6 +46,7 @@ from custom_components.magic_areas.util import cleanup_removed_entries
 
 _LOGGER = logging.getLogger(__name__)
 CONTROL_EVENT_GRACE_SECONDS = 2.0
+ATTR_MANUAL_OVERRIDE = "manual_override"
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -209,6 +210,7 @@ class AreaLightGroup(MagicLightGroup):
 
         self.controlling = True
         self.controlled = False
+        self.manual_override = False
         self._last_control_action_ts = 0.0
 
         self._icon = LIGHT_GROUP_DEFAULT_ICON
@@ -244,6 +246,7 @@ class AreaLightGroup(MagicLightGroup):
         # Add static attributes
         self._attr_extra_state_attributes["lights"] = self._entity_ids
         self._attr_extra_state_attributes["controlling"] = self.controlling
+        self._attr_extra_state_attributes[ATTR_MANUAL_OVERRIDE] = self.manual_override
 
         if self.category == LightGroupCategory.ALL:
             self._attr_extra_state_attributes["child_ids"] = []
@@ -275,6 +278,12 @@ class AreaLightGroup(MagicLightGroup):
                 controlling = last_state.attributes["controlling"]
                 self.controlling = controlling
                 self._attr_extra_state_attributes["controlling"] = self.controlling
+            self.manual_override = bool(
+                last_state.attributes.get(ATTR_MANUAL_OVERRIDE, False)
+            )
+            self._attr_extra_state_attributes[ATTR_MANUAL_OVERRIDE] = (
+                self.manual_override
+            )
         else:
             self._attr_is_on = False
 
@@ -394,12 +403,26 @@ class AreaLightGroup(MagicLightGroup):
             return False
 
         if self.turn_off_when_bright and AreaStates.BRIGHT in new_states:
+            if self.manual_override:
+                self.logger.debug(
+                    "%s: Manual override active, skipping turn_off_when_bright.",
+                    self.name,
+                )
+                return False
+
             self.logger.debug(
                 "%s: Area transitioned to bright and turn_off_when_bright is enabled, turning off.",
                 self.name,
             )
             self.controlled = True
             return self._turn_off(force=True)
+
+        if self.manual_override and self._turn_on_conditions_match():
+            self.logger.debug(
+                "%s: Manual override reset because turn-on conditions match.",
+                self.name,
+            )
+            self._set_manual_override(False)
 
         # Only react to actual secondary state changes
         if not new_states and not lost_states:
@@ -673,6 +696,17 @@ class AreaLightGroup(MagicLightGroup):
             if self.area.has_state(blocking_state)
         ]
 
+    def _turn_on_conditions_match(self) -> bool:
+        """Return True if configured rules or legacy assigned states currently match."""
+        if self._active_blocking_states():
+            return False
+
+        if self.state_rules:
+            rules_to_evaluate = [list(rule) for rule in self.state_rules if rule]
+            return self.matches_state_rules(rules_to_evaluate)
+
+        return any(self.area.has_state(state) for state in self.assigned_states)
+
     # Light Handling
 
     def _turn_on(self):
@@ -693,6 +727,12 @@ class AreaLightGroup(MagicLightGroup):
 
     def _turn_off(self, force: bool = False):
         """Turn off light if it's not already off and we're controlling it."""
+        if self.manual_override:
+            self.logger.debug(
+                "%s: Manual override active, ignoring turn off.", self.name
+            )
+            return False
+
         if not force and not self.controlling:
             return False
 
@@ -723,9 +763,15 @@ class AreaLightGroup(MagicLightGroup):
     def reset_control(self):
         """Reset control status."""
         self.controlling = True
+        self._set_manual_override(False)
         self._attr_extra_state_attributes["controlling"] = self.controlling
         self.schedule_update_ha_state()
         self.logger.debug("{self.name}: Control Reset.")
+
+    def _set_manual_override(self, enabled: bool) -> None:
+        """Set manual override state and expose it as an entity attribute."""
+        self.manual_override = enabled
+        self._attr_extra_state_attributes[ATTR_MANUAL_OVERRIDE] = enabled
 
     def handle_group_state_change_primary(self):
         """Handle group state change for primary area state events."""
@@ -737,22 +783,38 @@ class AreaLightGroup(MagicLightGroup):
         )
         self.schedule_update_ha_state()
 
-    def handle_group_state_change_secondary(self):
-        """Handle group state change for secondary area state events."""
+    def handle_manual_group_state_change(self, new_state=None) -> bool:
+        """Handle manual on/off changes common to parent and child groups."""
         within_control_grace = (
             monotonic() - self._last_control_action_ts
         ) <= CONTROL_EVENT_GRACE_SECONDS
 
-        # Multiple state_changed events can arrive for one service call.
-        # Treat all events inside the grace window as originating from us.
         if self.controlled or within_control_grace:
             self.controlled = False
             self.logger.debug("%s: Group controlled by us.", self.name)
+            return True
+
+        self.logger.debug("%s: Group controlled by something else.", self.name)
+
+        if new_state == STATE_ON:
+            self._set_manual_override(True)
+            self.controlling = True
+            return True
+
+        if new_state == STATE_OFF and self.manual_override:
+            self._set_manual_override(False)
+            self.controlling = True
+            return True
+
+        return False
+
+    def handle_group_state_change_secondary(self, new_state=None):
+        """Handle group state change for secondary area state events."""
+        if self.handle_manual_group_state_change(new_state):
             return
 
-        # If not, it was manually controlled, stop controlling
+        # If it was manually controlled in a way we do not override, stop controlling.
         self.controlling = False
-        self.logger.debug("%s: Group controlled by something else.", self.name)
 
     def group_state_changed(self, event):
         """Handle group state change events."""
@@ -761,55 +823,59 @@ class AreaLightGroup(MagicLightGroup):
             self.reset_control()
         else:
             origin_event = event.context.origin_event
+            new_state = None
+
+            if origin_event.event_type == "state_changed":
+                # Skip non ON/OFF state changes
+                if (
+                    "old_state" not in origin_event.data
+                    or not origin_event.data["old_state"]
+                    or not origin_event.data["old_state"].state
+                    or origin_event.data["old_state"].state
+                    not in [
+                        STATE_ON,
+                        STATE_OFF,
+                    ]
+                ):
+                    return False
+                if (
+                    "new_state" not in origin_event.data
+                    or not origin_event.data["new_state"]
+                    or not origin_event.data["new_state"].state
+                    or origin_event.data["new_state"].state
+                    not in [
+                        STATE_ON,
+                        STATE_OFF,
+                    ]
+                ):
+                    return False
+
+                # Ignore duplicate state reports (e.g. ON->ON/OFF->OFF),
+                # otherwise we may incorrectly mark automation as externally controlled.
+                if (
+                    origin_event.data["old_state"].state
+                    == origin_event.data["new_state"].state
+                ):
+                    return False
+
+                # Skip restored events
+                if (
+                    "restored" in origin_event.data["old_state"].attributes
+                    and origin_event.data["old_state"].attributes["restored"]
+                ):
+                    return False
+
+                new_state = origin_event.data["new_state"].state
 
             if self.category == LightGroupCategory.ALL:
+                self.handle_manual_group_state_change(new_state)
                 self.handle_group_state_change_primary()
             else:
-                # Ignore certain events
-                if origin_event.event_type == "state_changed":
-                    # Skip non ON/OFF state changes
-                    if (
-                        "old_state" not in origin_event.data
-                        or not origin_event.data["old_state"]
-                        or not origin_event.data["old_state"].state
-                        or origin_event.data["old_state"].state
-                        not in [
-                            STATE_ON,
-                            STATE_OFF,
-                        ]
-                    ):
-                        return False
-                    if (
-                        "new_state" not in origin_event.data
-                        or not origin_event.data["new_state"]
-                        or not origin_event.data["new_state"].state
-                        or origin_event.data["new_state"].state
-                        not in [
-                            STATE_ON,
-                            STATE_OFF,
-                        ]
-                    ):
-                        return False
-
-                    # Ignore duplicate state reports (e.g. ON->ON/OFF->OFF),
-                    # otherwise we may incorrectly mark automation as externally controlled.
-                    if (
-                        origin_event.data["old_state"].state
-                        == origin_event.data["new_state"].state
-                    ):
-                        return False
-
-                    # Skip restored events
-                    if (
-                        "restored" in origin_event.data["old_state"].attributes
-                        and origin_event.data["old_state"].attributes["restored"]
-                    ):
-                        return False
-
-                self.handle_group_state_change_secondary()
+                self.handle_group_state_change_secondary(new_state)
 
         # Update attribute
         self._attr_extra_state_attributes["controlling"] = self.controlling
+        self._attr_extra_state_attributes[ATTR_MANUAL_OVERRIDE] = self.manual_override
         self.schedule_update_ha_state()
 
         return True
