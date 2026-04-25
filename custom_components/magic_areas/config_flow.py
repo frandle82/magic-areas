@@ -110,6 +110,7 @@ from .const import (
     CONF_OVERHEAD_LIGHTS_STATES_LOGIC,
     CONF_OVERHEAD_LIGHTS_TURN_OFF_WHEN_BRIGHT,
     CONF_OVERHEAD_LIGHTS_STATES,
+    CONF_PRESENCE_CONTROL_ENTITIES,
     CONF_PRESENCE_DEVICE_PLATFORMS,
     CONF_PRESENCE_HOLD_TIMEOUT,
     CONF_PRESENCE_SENSOR_DEVICE_CLASS,
@@ -181,6 +182,7 @@ from .const import (
     OPTIONS_SECONDARY_STATES,
     OPTIONS_SECONDARY_STATES_META,
     OPTIONS_WASP_IN_A_BOX,
+    PRESENCE_CONTROL_ENTITY_DOMAINS,
     REGULAR_AREA_BASIC_OPTIONS_SCHEMA,
     REGULAR_AREA_PRESENCE_TRACKING_OPTIONS_SCHEMA,
     REGULAR_AREA_SCHEMA,
@@ -744,6 +746,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
 
                 return await self.async_step_show_menu()
 
+        presence_control_entities = [
+            entity_id
+            for domain in PRESENCE_CONTROL_ENTITY_DOMAINS
+            for entity_id in self.hass.states.async_entity_ids(domain)
+        ]
+
         all_selectors = {
             CONF_TYPE: self._build_selector_select(
                 sorted([AREA_TYPE_INTERIOR, AREA_TYPE_EXTERIOR]),
@@ -754,6 +762,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
             ),
             CONF_EXCLUDE_ENTITIES: self._build_selector_entity_simple(
                 self.all_area_entities, multiple=True
+            ),
+            CONF_PRESENCE_CONTROL_ENTITIES: self._build_selector_entity_simple(
+                sorted(presence_control_entities), multiple=True
             ),
             CONF_RELOAD_ON_REGISTRY_CHANGE: self._build_selector_boolean(),
             CONF_IGNORE_DIAGNOSTIC_ENTITIES: self._build_selector_boolean(),
