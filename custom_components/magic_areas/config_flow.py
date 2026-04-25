@@ -70,6 +70,7 @@ from .const import (
     CONF_BLE_TRACKER_ENTITIES,
     CONF_CLEAR_TIMEOUT,
     CONF_CLIMATE_CONTROL_ENTITY_ID,
+    CONF_CLIMATE_CONTROL_OCCUPANCY_THRESHOLD,
     CONF_CLIMATE_CONTROL_PRESET_CLEAR,
     CONF_CLIMATE_CONTROL_PRESET_EXTENDED,
     CONF_CLIMATE_CONTROL_PRESET_OCCUPIED,
@@ -1524,6 +1525,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                 EMPTY_ENTRY + available_preset_modes,
                 translation_key=SelectorTranslationKeys.CLIMATE_PRESET_LIST,
             ),
+            CONF_CLIMATE_CONTROL_OCCUPANCY_THRESHOLD: self._build_selector_number(
+                unit_of_measurement="minutes"
+            ),
         }
 
         return await self.do_feature_config(
@@ -1545,6 +1549,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow, ConfigBase):
                 CONF_CLIMATE_CONTROL_PRESET_EXTENDED: vol.In(
                     EMPTY_ENTRY + available_preset_modes
                 ),
+                CONF_CLIMATE_CONTROL_OCCUPANCY_THRESHOLD: cv.positive_int,
             },
             selectors=selectors,
             user_input=user_input,
